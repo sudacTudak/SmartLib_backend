@@ -1,0 +1,4 @@
+__all__ = ['API_VERSION', 'API_PATH_PREFIX']
+
+API_VERSION = 1
+API_PATH_PREFIX = 'api/v'+ str(API_VERSION)
