@@ -10,6 +10,7 @@ class Genre(models.Model):
 
     class Meta:
         ordering = ('created_at',)
+        db_table = 'genre'
 
     def __str__(self):
         return self.title

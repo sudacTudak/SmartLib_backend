@@ -21,5 +21,5 @@ from .constants import API_PATH_PREFIX
 
 urlpatterns = [
     path(fr'{API_PATH_PREFIX}/django-admin/', admin.site.urls),
-    path(fr'{API_PATH_PREFIX}/book-basis/', include('books_model.urls')),
+    path(fr'{API_PATH_PREFIX}/books/', include('books_model.urls')),
 ]
