@@ -1,9 +1,9 @@
-__all__ = ['HTTPResponse']
-
 from rest_framework.response import Response
 from rest_framework import status
 
 from http_core import ResponseBodySuccess, ResponseBodyFailure
+
+__all__ = ['HTTPResponse']
 
 
 class HTTPResponse(Response):
