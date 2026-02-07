@@ -13,6 +13,8 @@ ModelT = TypeVar("ModelT")
 
 
 class ViewSetBase(Generic[ModelT], GenericViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
     def get_queryset(self) -> QuerySet[ModelT]:
         return super().get_queryset()
 

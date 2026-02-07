@@ -1,10 +1,10 @@
+from http_core import AppRouter, AppRouterConfig
 from library.views import LibraryBranchViewSet
-from rest_framework import routers
 
-library_branch_url = 'libs'
+library_branch_url = 'branch'
 
-router = routers.SimpleRouter()
-router.register(fr'{library_branch_url}', LibraryBranchViewSet)
-
+router = AppRouter.from_configs((
+    AppRouterConfig(prefix=fr'{library_branch_url}', view=LibraryBranchViewSet),
+))
 
 urlpatterns = router.urls
