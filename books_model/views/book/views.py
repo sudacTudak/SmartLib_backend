@@ -15,14 +15,13 @@ from common_core.classes import ViewSetBase
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 from rest_framework.exceptions import ParseError
 
-from common_core.classes.view_set_base import ModelT
 from http_core import HTTPResponse
 from library.models import LibraryBranch
 
 __all__ = ['BookViewSet']
 
 
-class BookViewSet(ViewSetBase[Book],RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin):
+class BookViewSet(ViewSetBase[Book], RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin):
     serializer_class = BookByLibrarySerializer
     queryset = Book.objects.all()
 
@@ -33,7 +32,7 @@ class BookViewSet(ViewSetBase[Book],RetrieveModelMixin, CreateModelMixin, Update
             return []
         return [IsAdminUser()]
 
-    def get_queryset(self) -> QuerySet[ModelT]:
+    def get_queryset(self) -> QuerySet[Book]:
         qs = super().get_queryset()
 
         if self.request.method in SAFE_METHODS:
@@ -43,7 +42,7 @@ class BookViewSet(ViewSetBase[Book],RetrieveModelMixin, CreateModelMixin, Update
 
     @action(url_path='by-library', detail=False, methods=[HTTPMethod.GET])
     def list_by_library_branch(self, request: Request, *_args, **_kwargs):
-        filter_params: dict[str, str | int] = {}
+        filter_params: dict[str, str | int | bool] = {}
 
         if (library_branch_id := request.query_params.get('library')) is None:
             raise ParseError(detail='Library branch id is not provided')
@@ -63,4 +62,3 @@ class BookViewSet(ViewSetBase[Book],RetrieveModelMixin, CreateModelMixin, Update
         serializer = cast(BookByLibrarySerializer, self.get_serializer(queryset, many=True))
 
         return HTTPResponse.success(data=serializer.data, status_code=status.HTTP_200_OK)
-

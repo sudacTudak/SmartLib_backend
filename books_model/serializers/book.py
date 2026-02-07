@@ -1,6 +1,6 @@
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer, CharField, IntegerField
-from books_model.models import Book, BookBasis
+from books_model.models import Book
 
 __all__ = ['BookByLibrarySerializer']
 
