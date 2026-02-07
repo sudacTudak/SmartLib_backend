@@ -1,9 +1,10 @@
 from django.contrib import admin
 
-from .models import BookBasis, Genre
+from .models import BookBasis, Genre, Book
 
 registered_models = (
     BookBasis,
+    Book,
     Genre
 )
 

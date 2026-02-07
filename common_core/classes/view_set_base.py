@@ -1,29 +1,20 @@
+from django.db.models import QuerySet
 from rest_framework.viewsets import GenericViewSet
 
 from http_core import HTTPResponse
 from rest_framework import status
 
 from http_core import ResponseBodyFailure, ResponseBodySuccess
+from typing import Generic, TypeVar
 
 __all__ = ['ViewSetBase']
 
+ModelT = TypeVar("ModelT")
 
-class ViewSetBase(GenericViewSet):
-    object_name: str | None
-    _default_name = 'object'
 
-    @property
-    def safety_object_name(self):
-        return self.object_name if self.object_name is not None else self._default_name
-
-    def make_not_found_response(self, field_id: int, **kwargs):
-        message = f'Not found {self.safety_object_name} with id {field_id}'
-        return HTTPResponse.failure(status_code=status.HTTP_404_NOT_FOUND,
-                                    message=message, **kwargs)
-
-    def make_bad_request_response(self, data=None, **kwargs):
-        message = f'Invalid {self.safety_object_name} data provided'
-        return HTTPResponse.failure(status_code=status.HTTP_400_BAD_REQUEST, message=message, data=data, **kwargs)
+class ViewSetBase(Generic[ModelT], GenericViewSet):
+    def get_queryset(self) -> QuerySet[ModelT]:
+        return super().get_queryset()
 
     def finalize_response(self, request, response, *args, **kwargs):
         response = super().finalize_response(request, response, *args, **kwargs)
@@ -31,7 +22,7 @@ class ViewSetBase(GenericViewSet):
         if isinstance(response, HTTPResponse):
             return response
 
-        # Обрабатываем ошибки
+        # Ошибки уже в нужном формате после обработки exception_handler
         if response.status_code >= 400:
             return response
 
