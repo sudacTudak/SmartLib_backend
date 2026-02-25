@@ -2,7 +2,7 @@ from collections.abc import Collection
 
 from rest_framework.routers import SimpleRouter, Route, DynamicRoute
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from typing import Any, Optional
 
 __all__ = ['AppRouter', 'AppRouterConfig']
 
@@ -11,6 +11,7 @@ __all__ = ['AppRouter', 'AppRouterConfig']
 class AppRouterConfig:
     prefix: str
     view: Any
+    basename: Optional[str]
 
 
 class AppRouter(SimpleRouter):
@@ -48,6 +49,6 @@ class AppRouter(SimpleRouter):
         instance = cls(**kwargs)
 
         for config in configs:
-            instance.register(config.prefix, config.view)
+            instance.register(config.prefix, config.view, basename=config.basename)
 
         return instance

@@ -1,15 +1,15 @@
 from typing import ClassVar
 
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.utils import timezone
 
 from users.enums import UserRole, Gender
-from users.custom_manager import CustomUserManager
+from .manager import CustomUserManager
 from users.models.permissions import CustomPermissionsMixin
 from uuid import uuid4 as uuid
 
+__all__ = ['CustomUser']
 
 class CustomUser(AbstractBaseUser, CustomPermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid, editable=False)

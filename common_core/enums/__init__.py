@@ -1,1 +1,1 @@
-from .int_enum_with_labels import *
+from .base import *

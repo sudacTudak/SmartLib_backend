@@ -40,8 +40,11 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'books_model.apps.BooksModelConfig',
-    'library.apps.LibraryConfig'
+    'library.apps.LibraryConfig',
+    'users.apps.UsersConfig'
 ]
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'common_core.handlers.custom_exception_handler',

@@ -11,10 +11,9 @@ from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyMod
 from django.db import transaction
 from typing import cast
 
-__all__ = ['BookBasisViewSet']
-
 from library.models import LibraryBranch
 
+__all__ = ['BookBasisViewSet']
 
 class BookBasisViewSet(ViewSetBase[BookBasis], ReadOnlyModelViewSet, CreateModelMixin, UpdateModelMixin,
                        DestroyModelMixin):
