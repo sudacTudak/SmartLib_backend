@@ -11,6 +11,7 @@ from uuid import uuid4 as uuid
 
 __all__ = ['CustomUser']
 
+
 class CustomUser(AbstractBaseUser, CustomPermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid, editable=False)
     email = models.EmailField(unique=True)
@@ -32,7 +33,7 @@ class CustomUser(AbstractBaseUser, CustomPermissionsMixin):
     )
 
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
 

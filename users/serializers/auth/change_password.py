@@ -5,12 +5,12 @@ from rest_framework import serializers
 from users.models import CustomUser
 from users.validators import password_validator
 
-password_field_meta = dict(min_length=6, max_length=6, validators=[password_validator], write_only=True, required=True,
+password_field_meta = dict(min_length=6, max_length=30, validators=[password_validator], write_only=True, required=True,
                            allow_blank=False, trim_whitespace=True)
 
 __all__ = ['ChangePasswordSerializer']
 
-class ChangePasswordSerializer(serializers.ModelSerializer):
+class ChangePasswordSerializer(serializers.Serializer):
     email = EmailField(required=True, write_only=True)
     current_password = CharField(**password_field_meta)
     new_password = CharField(**password_field_meta)

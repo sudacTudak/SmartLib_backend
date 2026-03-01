@@ -4,9 +4,9 @@ from rest_framework.relations import PrimaryKeyRelatedField
 from users.models import CustomUser, UserPermission
 
 
-class GetManagerSerializer(serializers.ModelSerializer):
-    user_permission = PrimaryKeyRelatedField(many=True, queryset=UserPermission.objects.all().only('code'))
+class GetStaffUserSerializer(serializers.ModelSerializer):
+    user_permissions = PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = CustomUser
-        fields = '__all__'
+        exclude = ('password',)

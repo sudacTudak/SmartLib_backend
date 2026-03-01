@@ -1,1 +1,1 @@
-from .get_permission import *
+from .base import *
