@@ -25,6 +25,7 @@ class CustomUserQuerySet(_Base):
 
     def get_by_email(self, email: str) -> CustomUser | None:
         try:
+            print('email: ', email)
             return self.get(email=email)
         except (ObjectDoesNotExist,):
             return None

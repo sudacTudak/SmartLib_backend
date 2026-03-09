@@ -8,13 +8,14 @@ from users.enums import UserRole, Gender
 from .manager import CustomUserManager
 from users.models.permissions import CustomPermissionsMixin
 from uuid import uuid4 as uuid
+from .constants import MAX_EMAIL_LENGTH
 
 __all__ = ['CustomUser']
 
 
 class CustomUser(AbstractBaseUser, CustomPermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid, editable=False)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, max_length=MAX_EMAIL_LENGTH)
 
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)

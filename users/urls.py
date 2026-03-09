@@ -1,9 +1,12 @@
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+from django.urls import path
 from users.views import AuthViewSet, UsersViewSet, StaffViewSet
 from http_core import AppRouter, AppRouterConfig
 
 auth_url = 'auth'
 users_url = ''
 staff_url = 'staff'
+token_url = 'token'
 
 router = AppRouter.from_configs((
     AppRouterConfig(prefix=fr'{auth_url}', view=AuthViewSet, basename='auth'),
@@ -11,4 +14,6 @@ router = AppRouter.from_configs((
     AppRouterConfig(prefix=fr'', view=UsersViewSet, basename='users'),
 ))
 
-urlpatterns = router.urls
+urlpatterns = [
+                  path(f'{auth_url}/{token_url}/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+              ] + router.urls

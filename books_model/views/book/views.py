@@ -18,19 +18,14 @@ from rest_framework.exceptions import ParseError
 from http_core import HTTPResponse
 from library.models import LibraryBranch
 
+from users.enums import UserPermissions
+from users.permissions import IsStaff, HasUserPermission
 __all__ = ['BookViewSet']
 
 
-class BookViewSet(ViewSetBase[Book], RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin):
+class BookViewSet(ViewSetBase[Book], RetrieveModelMixin):
     serializer_class = BookByLibrarySerializer
     queryset = Book.objects.all()
-
-    def get_permissions(self):
-        # TODO: С разработкой нормальной модели пользователя
-        # TODO: и добавлением прав поправить на новый permission class
-        if self.request.method in SAFE_METHODS:
-            return []
-        return [IsAdminUser()]
 
     def get_queryset(self) -> QuerySet[Book]:
         qs = super().get_queryset()

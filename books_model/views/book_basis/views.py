@@ -13,7 +13,11 @@ from typing import cast
 
 from library.models import LibraryBranch
 
+from users.permissions import HasUserPermission, IsStaff
+from users.enums import UserPermissions
+
 __all__ = ['BookBasisViewSet']
+
 
 class BookBasisViewSet(ViewSetBase[BookBasis], ReadOnlyModelViewSet, CreateModelMixin, UpdateModelMixin,
                        DestroyModelMixin):
@@ -25,7 +29,9 @@ class BookBasisViewSet(ViewSetBase[BookBasis], ReadOnlyModelViewSet, CreateModel
         # TODO: и добавлением прав поправить на новый permission class
         if self.request.method in SAFE_METHODS:
             return []
-        return [IsAdminUser()]
+        if self.action == 'partial_update':
+            return [IsStaff(), HasUserPermission(UserPermissions.BookBasesModification)]
+        return [IsStaff(), HasUserPermission(UserPermissions.UsersAdministration)]
 
     def destroy(self, request, *args, **kwargs):
         book_basis = self.get_object()
