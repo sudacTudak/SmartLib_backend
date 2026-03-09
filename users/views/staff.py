@@ -10,7 +10,7 @@ from http_core import HTTPResponse
 from users.models import CustomUser, CustomUserQuerySet, UserPermission
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 
-from users.serializers import GetStaffUserSerializer, UpdateUserPermissionSerializer
+from users.serializers import GetStaffSerializer, UpdateUserPermissionSerializer
 from typing import cast
 
 __all__ = ['StaffViewSet']
@@ -23,7 +23,7 @@ class StaffViewSet(ViewSetBase[CustomUser], RetrieveModelMixin, ListModelMixin):
         return CustomUser.objects.get_staff()
 
     def get_serializer(self, *args, **kwargs):
-        return GetStaffUserSerializer(*args, **kwargs)
+        return GetStaffSerializer(*args, **kwargs)
 
     @action(url_path='by-library', detail=False, methods=(HTTPMethod.GET,))
     def by_library(self, request: Request, *args, **kwargs):

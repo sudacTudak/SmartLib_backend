@@ -23,5 +23,6 @@ urlpatterns = [
     path(fr'{API_PATH_PREFIX}/django-admin/', admin.site.urls),
     path(fr'{API_PATH_PREFIX}/books/', include('books_model.urls')),
     path(fr'{API_PATH_PREFIX}/libs/', include('library.urls')),
-    path(fr'{API_PATH_PREFIX}/users/', include('users.urls'))
+    path(fr'{API_PATH_PREFIX}/users/', include('users.urls')),
+    path(fr'{API_PATH_PREFIX}/positions', include('positions.urls'))
 ]

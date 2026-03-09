@@ -1,19 +1,38 @@
 from django.contrib.auth.base_user import BaseUserManager
-
+from django.db import transaction
 from .queryset import CustomUserQuerySet
 
 __all__ = ['CustomUserManager']
 
+from .. import StaffProfile
+
 
 class CustomUserManager(BaseUserManager.from_queryset(CustomUserQuerySet)):
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError('Email is required')
-
+    def _create_user(self, *, email, password, **extra_fields):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password, **extra_fields):
+        if not email:
+            raise ValueError('Email is required')
+
+        return self._create_user(email=email, password=password, **extra_fields)
+
+    @transaction.atomic
+    def create_staff(self, *, email, password, profile_data, **extra_fields):
+        if not email:
+            raise ValueError('Email обязателен')
+        if not password:
+            raise ValueError('Пароль обязателен')
+        if not profile_data:
+            raise ValueError('Не предоставлены данные профиля сотрудника')
+
+        user = self._create_user(email=email, password=password, **extra_fields)
+        StaffProfile.objects.create(user=user, **profile_data)
+
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):

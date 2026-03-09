@@ -25,3 +25,6 @@ class UserPermissions(AppIntEnum):
     LibraryBranchesModification = 9
     BookMovementManagement = 10
     BookReservationManagement = 11
+    PositionsModification = 12
+    PositionsAdministration = 13
+    StaffPositionsAdministration = 14
