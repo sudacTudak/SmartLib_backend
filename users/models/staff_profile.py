@@ -13,7 +13,12 @@ from users.models import CustomUser
 class StaffProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid, editable=False)
     user = models.OneToOneField(CustomUser, related_name='staff_profile', on_delete=models.CASCADE)
-    library_branch = models.ForeignKey(LibraryBranch, related_name='staff', on_delete=models.PROTECT)
+    library_branch = models.ForeignKey(
+        LibraryBranch,
+        related_name='staff',
+        on_delete=models.PROTECT,
+        null=True,
+    )
     position = models.ForeignKey(StaffPosition, related_name='staff', on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
