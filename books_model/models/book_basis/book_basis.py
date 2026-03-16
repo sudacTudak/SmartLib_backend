@@ -1,4 +1,5 @@
 from django.db import models
+from uuid import uuid4 as uuid
 
 __all__ = ['BookBasis', 'BookBasisFieldsMeta']
 
@@ -9,7 +10,7 @@ BookBasisFieldsMeta = dict(
 )
 
 class BookBasis(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True, default=uuid, editable=False)
     title = models.CharField(max_length=BookBasisFieldsMeta['TITLE_MAX_LENGTH'])
     description = models.TextField(blank=True, null=True)
     author = models.CharField(max_length=BookBasisFieldsMeta['AUTHOR_MAX_LENGTH'])

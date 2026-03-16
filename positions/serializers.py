@@ -1,9 +1,20 @@
 from rest_framework import serializers
-from .models import Position
 
-__all__ = ['PositionSerializer']
+from .constants import POSITION_NAME_MIN_LENGTH
+from .models import StaffPosition
 
-class PositionSerializer(serializers.ModelSerializer):
+__all__ = ['WritePositionSerializer', 'ReadPositionSerializer']
+
+
+class WritePositionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Position
-        fields = 'name'
+        model = StaffPosition
+        fields = ('name',)
+        extra_kwargs = {'name': {'min_length': POSITION_NAME_MIN_LENGTH, 'write_only': True}}
+
+
+class ReadPositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StaffPosition
+        fields = ('id', 'name',)
+        read_only_fields = ('id', 'name')

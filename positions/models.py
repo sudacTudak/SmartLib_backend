@@ -1,9 +1,14 @@
 from django.db import models
-from rest_framework.fields import CharField
 
-from .constants import POSITION_NAME_MIN_LENGTH, POSITION_NAME_MAX_LENGTH
+from .constants import POSITION_NAME_MAX_LENGTH
+from uuid import uuid4 as uuid
 
+class StaffPosition(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid, editable=False)
+    name = models.CharField(max_length=POSITION_NAME_MAX_LENGTH)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-class Position(models.Model):
-    id = models.UUIDField(primary_key=True)
-    name = CharField(min_length=POSITION_NAME_MIN_LENGTH, max_length=POSITION_NAME_MAX_LENGTH)
+    class Meta:
+        db_table = 'staff_position'
+        ordering = ('created_at',)

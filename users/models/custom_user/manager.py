@@ -4,8 +4,6 @@ from .queryset import CustomUserQuerySet
 
 __all__ = ['CustomUserManager']
 
-from .. import StaffProfile
-
 
 class CustomUserManager(BaseUserManager.from_queryset(CustomUserQuerySet)):
     def _create_user(self, *, email, password, **extra_fields):
@@ -29,6 +27,8 @@ class CustomUserManager(BaseUserManager.from_queryset(CustomUserQuerySet)):
             raise ValueError('Пароль обязателен')
         if not profile_data:
             raise ValueError('Не предоставлены данные профиля сотрудника')
+
+        from users.models import StaffProfile
 
         user = self._create_user(email=email, password=password, **extra_fields)
         StaffProfile.objects.create(user=user, **profile_data)

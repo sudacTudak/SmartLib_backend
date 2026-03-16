@@ -4,14 +4,7 @@ from rest_framework.routers import SimpleRouter, Route, DynamicRoute
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-__all__ = ['AppRouter', 'AppRouterConfig']
-
-
-@dataclass
-class AppRouterConfig:
-    prefix: str
-    view: Any
-    basename: str | None = None
+__all__ = ['AppRouter']
 
 
 class AppRouter(SimpleRouter):
@@ -48,8 +41,14 @@ class AppRouter(SimpleRouter):
         ),
     ]
 
+    @dataclass
+    class Config:
+        view: Any
+        prefix: str = ''
+        basename: str | None = None
+
     @classmethod
-    def from_configs(cls, configs: Collection[AppRouterConfig], /, **kwargs):
+    def from_configs(cls, configs: Collection[Config], /, **kwargs):
         instance = cls(**kwargs)
 
         for config in configs:

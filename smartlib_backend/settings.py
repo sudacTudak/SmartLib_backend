@@ -41,7 +41,8 @@ INSTALLED_APPS = [
 
     'books_model.apps.BooksModelConfig',
     'library.apps.LibraryConfig',
-    'users.apps.UsersConfig'
+    'users.apps.UsersConfig',
+    'positions.apps.PositionsConfig'
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'

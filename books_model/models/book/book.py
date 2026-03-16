@@ -4,12 +4,13 @@ from books_model.models import BookBasis
 from typing import cast
 
 from library.models import LibraryBranch
+from uuid import uuid4 as uuid
 
 __all__ = ['Book', ]
 
 
 class Book(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid)
     library_branch = models.ForeignKey(LibraryBranch, related_name='books', on_delete=models.PROTECT)
     book_basis = models.ForeignKey(BookBasis, related_name='books', on_delete=models.PROTECT)
     total_count = models.PositiveIntegerField()

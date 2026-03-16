@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from django.urls import path
 from users.views import AuthViewSet, UsersViewSet, StaffViewSet
-from http_core import AppRouter, AppRouterConfig
+from http_core import AppRouter
 
 auth_url = 'auth'
 users_url = ''
@@ -9,9 +9,9 @@ staff_url = 'staff'
 token_url = 'token'
 
 router = AppRouter.from_configs((
-    AppRouterConfig(prefix=fr'{auth_url}', view=AuthViewSet, basename='auth'),
-    AppRouterConfig(prefix=fr'{staff_url}', view=StaffViewSet, basename='staff'),
-    AppRouterConfig(prefix=fr'', view=UsersViewSet, basename='users'),
+    AppRouter.Config(prefix=fr'{auth_url}', view=AuthViewSet, basename='auth'),
+    AppRouter.Config(prefix=fr'{staff_url}', view=StaffViewSet, basename='staff'),
+    AppRouter.Config(view=UsersViewSet, basename='users'),
 ))
 
 urlpatterns = [

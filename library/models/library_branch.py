@@ -1,13 +1,15 @@
 from django.db import models
+from uuid import uuid4 as uuid
 
 __all__ = ['LibraryBranch', 'LibraryBranchFieldsMeta']
 
 LibraryBranchFieldsMeta = dict(
-    ADDRESS_MAX_LENGTH = 255,
+    ADDRESS_MAX_LENGTH=255,
 )
 
+
 class LibraryBranch(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid)
     address = models.CharField(max_length=LibraryBranchFieldsMeta['ADDRESS_MAX_LENGTH'])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
