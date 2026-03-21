@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'books_model.apps.BooksModelConfig',
     'library.apps.LibraryConfig',
     'users.apps.UsersConfig',
-    'positions.apps.PositionsConfig'
+    'positions.apps.PositionsConfig',
+    'suppliers.apps.SuppliersConfig',
+    'inventory_movement.apps.InventoryMovementConfig',
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'

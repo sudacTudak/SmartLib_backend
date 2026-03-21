@@ -21,7 +21,7 @@ else:
 
 class CustomUserQuerySet(_Base):
     def get_library_managers(self, library_branch_id: str):
-        pass
+        return self.filter(staff_profile__library_branch=library_branch_id)
 
     def get_by_email(self, email: str) -> CustomUser | None:
         try:

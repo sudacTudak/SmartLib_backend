@@ -1,9 +1,10 @@
 from rest_framework import serializers
-from rest_framework.relations import PrimaryKeyRelatedField
 
 from users.models import CustomUser
+from users.serializers.permissions import ReadUserPermissionsSerializer
 
 __all__ = ['GetStaffSerializer']
+
 
 
 class GetStaffSerializer(serializers.ModelSerializer):
@@ -17,6 +18,7 @@ class GetStaffSerializer(serializers.ModelSerializer):
         read_only=True,
         allow_null=True
     )
+    user_permissions = ReadUserPermissionsSerializer(many=True)
 
     class Meta:
         model = CustomUser

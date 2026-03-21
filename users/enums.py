@@ -28,3 +28,4 @@ class UserPermissions(AppIntEnum):
     PositionsModification = 12
     PositionsAdministration = 13
     StaffPositionsAdministration = 14
+    ManageSuppliers = 15

@@ -1,11 +1,11 @@
 from django.db.models import QuerySet
+from rest_framework.request import Request
 from rest_framework.viewsets import GenericViewSet
 
 from http_core import HTTPResponse
-from rest_framework import status
 
 from http_core import ResponseBodyFailure, ResponseBodySuccess
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, cast
 
 __all__ = ['ViewSetBase']
 
@@ -17,6 +17,9 @@ class ViewSetBase(Generic[ModelT], GenericViewSet):
 
     def get_queryset(self) -> QuerySet[ModelT]:
         return super().get_queryset()
+
+    def get_raw_query_params(self) -> dict[str, str]:
+        return cast(Request, cast(object, self.request)).query_params
 
     def finalize_response(self, request, response, *args, **kwargs):
         response = super().finalize_response(request, response, *args, **kwargs)
