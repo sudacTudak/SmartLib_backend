@@ -8,6 +8,9 @@ from positions.models import StaffPosition
 from uuid import uuid4 as uuid
 
 from users.models import CustomUser
+from typing import TYPE_CHECKING
+
+__all__ = ['StaffProfile']
 
 
 class StaffProfile(models.Model):
@@ -26,3 +29,7 @@ class StaffProfile(models.Model):
     class Meta:
         db_table = 'staff_profile'
         ordering = ('created_at',)
+
+if TYPE_CHECKING:
+    class StaffProfile:
+        library_branch_id = models.UUIDField()

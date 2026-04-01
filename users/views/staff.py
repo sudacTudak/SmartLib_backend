@@ -1,13 +1,11 @@
 from http import HTTPMethod
 
 from django.http import Http404
-from pydantic import BaseModel, Field, ValidationError, UUID4
+from pydantic import BaseModel, Field, UUID4
 from rest_framework.decorators import action
-from rest_framework.exceptions import ParseError
-from rest_framework.request import Request
 from rest_framework import status
 
-from common_core.classes import ViewSetBase
+from common_core.classes import LibraryStaffRestrictedViewSetBase
 from http_core import HTTPResponse
 from users.models import CustomUser, CustomUserQuerySet, UserPermission
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, CreateModelMixin
@@ -19,7 +17,7 @@ from users.enums import UserPermissions, UserRole
 
 from common_core.fields import OptionalListQueryParam
 
-__all__ = ['StaffViewSet']
+__all__ = ['StaffViewSet', 'StaffListQueryParams']
 
 
 class StaffListQueryParams(BaseModel):
@@ -33,27 +31,39 @@ class StaffListQueryParams(BaseModel):
     }
 
 
-class StaffViewSet(ViewSetBase[CustomUser], RetrieveModelMixin, ListModelMixin, CreateModelMixin):
+class StaffViewSet(LibraryStaffRestrictedViewSetBase[CustomUser], RetrieveModelMixin, ListModelMixin, CreateModelMixin):
     queryset = CustomUser.objects.all()
+    library_restrict_field_lookup = 'staff_profile__library_branch_id'
 
-    def get_queryset(self) -> CustomUserQuerySet:
-        qs = cast(CustomUserQuerySet, super().get_queryset())
+    def get_query_params_model_class(self):
+        if self.action == 'list':
+            return StaffListQueryParams
+        return None
 
-        try:
-            params = StaffListQueryParams.model_validate(self.get_raw_query_params())
-        except ValidationError as exc:
-            raise ParseError(detail=exc.errors())
+    def _apply_query_params_for_queryset(self, qs: CustomUserQuerySet):
+        params = cast(StaffListQueryParams, self.get_processed_query_params())
+        print(1)
+        if params is None:
+            return qs
+        print(2)
+        result_qs = qs
 
         if library_id := params.library_id:
-            qs = qs.get_library_managers(str(library_id))
-        if position_id := params.position_id:
-            qs = qs.filter(staff_profile__position=position_id)
-        if email := params.email:
-            qs = qs.filter(email__icontains=email)
-        if permissions := params.permissions:
-            qs = qs.filter(user_permissions__code__in=[perm.value for perm in permissions])
+            print(3, library_id, params, sep=' ')
+            user = cast(CustomUser, self.request.user)
 
-        return qs
+            if user.is_admin:
+                print(4)
+                result_qs = result_qs.get_library_managers(str(library_id))
+
+        if position_id := params.position_id:
+            result_qs = result_qs.filter(staff_profile__position=position_id)
+        if email := params.email:
+            result_qs = result_qs.filter(email__icontains=email)
+        if permissions := params.permissions:
+            result_qs = result_qs.filter(user_permissions__code__in=[perm.value for perm in permissions])
+
+        return result_qs
 
     def get_permissions(self):
         if self.action == 'update_permissions':

@@ -25,6 +25,7 @@ class UserPermission(models.Model):
         name = UserPermissions(self.code).name
         return f'{name} ({self.code})'
 
+
 class CustomPermissionsMixin(PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     user_permissions = models.ManyToManyField(

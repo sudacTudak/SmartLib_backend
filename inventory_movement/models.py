@@ -13,8 +13,11 @@ class InventoryMovement(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid)
     type = models.CharField(choices=InventoryMovementType.as_django_model_choices(), max_length=3)
     library_branch = models.ForeignKey(LibraryBranch, on_delete=models.PROTECT, related_name='library_branch')
+    library_branch_id: str
     book_basis = models.ForeignKey(BookBasis, on_delete=models.PROTECT, related_name='book_basis')
+    book_basis_id: str
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name='supplier', null=True, blank=True)
+    supplier_id: str
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     reason = models.CharField(max_length=255, blank=True)
     comment = models.TextField(blank=True)

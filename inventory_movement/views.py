@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import cast
 
-from pydantic import BaseModel, Field, ValidationError
+from django.db.models import QuerySet
+from pydantic import BaseModel, Field
 from rest_framework import status
 from rest_framework.exceptions import ParseError
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 
-from common_core.classes import ViewSetBase
+from common_core.classes import LibraryStaffRestrictedViewSetBase
 from http_core import HTTPResponse
 from inventory_movement.enums import InventoryMovementType
 from inventory_movement.models import InventoryMovement
@@ -15,7 +16,7 @@ from inventory_movement.serializers.movement_in_write import WriteMovementInSeri
 from inventory_movement.serializers.movement_out_write import WriteMovementOutSerializer
 from inventory_movement.serializers.movement_read import ReadInventoryMovementSerializer
 
-__all__ = ['InventoryMovementViewSet']
+__all__ = ['InventoryMovementViewSet', 'InventoryMovementQueryParams']
 
 
 class InventoryMovementQueryParams(BaseModel):
@@ -28,16 +29,22 @@ class InventoryMovementQueryParams(BaseModel):
     }
 
 
-class InventoryMovementViewSet(ViewSetBase[InventoryMovement], CreateModelMixin, ListModelMixin):
+class InventoryMovementViewSet(LibraryStaffRestrictedViewSetBase[InventoryMovement], CreateModelMixin, ListModelMixin):
     queryset = InventoryMovement.objects.all()
+    library_restrict_field_lookup = 'library_branch_id'
 
-    def get_queryset(self):
-        qs = super().get_queryset().select_related('supplier', 'library_branch', 'book_basis')
+    def get_query_params_model_class(self):
+        if self.action == 'list':
+            return InventoryMovementQueryParams
+        return None
 
-        try:
-            params = InventoryMovementQueryParams.model_validate(self.get_raw_query_params())
-        except ValidationError as exc:
-            raise ParseError(detail=exc.errors())
+    def _get_base_model_queryset(self) -> QuerySet[InventoryMovement]:
+        return super()._get_base_model_queryset().select_related('supplier', 'library_branch', 'book_basis')
+
+    def _apply_query_params_for_queryset(self, qs: QuerySet[InventoryMovement]):
+        params = self.get_processed_query_params()
+        if params is None:
+            return qs
 
         if params.type:
             qs = qs.filter(type=params.type.value)

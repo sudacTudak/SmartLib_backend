@@ -1,5 +1,4 @@
-from pydantic import BaseModel, Field, ValidationError
-from rest_framework.exceptions import ParseError
+from pydantic import BaseModel, Field
 from rest_framework.mixins import (
     RetrieveModelMixin,
     ListModelMixin,
@@ -37,13 +36,17 @@ class SupplierViewSet(
     serializer_class = SupplierSerializer
     queryset = Supplier.objects.all()
 
+    def get_query_params_model_class(self):
+        if self.action == 'list':
+            return SupplierListQueryParams
+        return None
+
     def get_queryset(self):
         qs = super().get_queryset()
 
-        try:
-            params = SupplierListQueryParams.model_validate(self.get_raw_query_params())
-        except ValidationError as exc:
-            raise ParseError(detail=exc.errors())
+        params = self.get_processed_query_params()
+        if params is None:
+            return qs
 
         if name := params.name:
             qs = qs.filter(name__icontains=name)

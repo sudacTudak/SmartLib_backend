@@ -6,6 +6,14 @@ class UserRole(AppStrEnum):
     Manager = 'manager'
     Client = 'client'
 
+    @property
+    def is_staff(self):
+        return self in (UserRole.Manager, UserRole.Admin)
+
+    @property
+    def is_client(self):
+        return self == UserRole.Client
+
 
 class Gender(AppStrEnum):
     Male = 'male'

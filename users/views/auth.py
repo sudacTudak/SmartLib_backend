@@ -49,6 +49,8 @@ class AuthViewSet(ViewSetBase[CustomUser]):
         password = serializer.validated_data.get('password')
 
         user = CustomUser.objects.get_by_email(email)
+        print('user: ', user)
+        print('user check password: ', user.check_password(password))
         if not user or not user.check_password(password):
             return HTTPResponse.failure(message="Неверный email или пароль", status_code=status.HTTP_401_UNAUTHORIZED)
 
