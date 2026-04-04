@@ -35,7 +35,8 @@ class CustomPermissionsMixin(PermissionsMixin):
     )
 
     admin_only_permissions = (UserPermissions.ManagerAdministration, UserPermissions.ManagerModification,
-                              UserPermissions.EditManagerOnlyPermissions, UserPermissions.EditAdminPermissions)
+                              UserPermissions.EditManagerOnlyPermissions, UserPermissions.EditAdminPermissions,
+                              UserPermissions.AmenityVendorAdministration, UserPermissions.AmenityVendorModification)
 
     class Meta:
         abstract = True

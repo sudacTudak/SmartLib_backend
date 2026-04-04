@@ -13,7 +13,6 @@ __all__ = ['PositionsViewSet']
 class PositionsViewSet(ViewSetBase[QuerySet[StaffPosition]], ListModelMixin, UpdateModelMixin, CreateModelMixin,
                        DestroyModelMixin):
     queryset = StaffPosition.objects.all()
-    serializer_class = WritePositionSerializer
 
     def get_permissions(self):
         if self.action in ('partial_update',):
@@ -24,8 +23,7 @@ class PositionsViewSet(ViewSetBase[QuerySet[StaffPosition]], ListModelMixin, Upd
 
         return (IsStaff(),)
 
-    def get_serializer(self, *args, **kwargs):
-        if self.action in ('list', 'retrieve',):
-            return ReadPositionSerializer(*args, **kwargs)
-
-        return WritePositionSerializer(*args, **kwargs)
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return ReadPositionSerializer
+        return WritePositionSerializer

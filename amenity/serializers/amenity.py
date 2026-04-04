@@ -1,26 +1,25 @@
+from django.db.models.fields import CharField
 from rest_framework import serializers
 
 from amenity.models import Amenity, AmenityVendor
 from library.models import LibraryBranch
+from .amenity_vendor import AmenityVendorReadSerializer
 
 __all__ = [
-    'AmenityVendorReadSerializer',
     'AmenityReadSerializer',
     'AmenityWriteSerializer',
 ]
 
 
-class AmenityVendorReadSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AmenityVendor
-        fields = ('id', 'amenity_name', 'vendor_name', 'preview_link', 'created_at')
-        read_only_fields = fields
+
 
 
 class AmenityReadSerializer(serializers.ModelSerializer):
     library_branch_id = serializers.UUIDField(read_only=True)
     vendor_id = serializers.UUIDField(read_only=True)
     vendor = AmenityVendorReadSerializer(read_only=True)
+    vendor_name = serializers.CharField(source='vendor.vendor_name')
+    amenity_name = serializers.CharField(source='vendor.amenity_name')
 
     class Meta:
         model = Amenity

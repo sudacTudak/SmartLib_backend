@@ -12,7 +12,7 @@ class UsersViewSet(ViewSetBase[CustomUserQuerySet], RetrieveModelMixin, ListMode
     def get_queryset(self) -> CustomUserQuerySet:
         return CustomUser.objects.get_clients()
 
-    def get_serializer(self, *args, **kwargs):
-        return GetUserPublicSerializer(*args, **kwargs)
+    def get_serializer_class(self):
+        return GetUserPublicSerializer
 
 

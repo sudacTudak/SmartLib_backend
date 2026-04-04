@@ -12,10 +12,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from amenity.models import Amenity
 from amenity.models.amenity.queryset import AmenityQuerySet
-from amenity.serializers import AmenityReadSerializer, AmenityWriteSerializer
+from amenity.serializers.amenity import AmenityReadSerializer, AmenityWriteSerializer
 from common_core.classes import ViewSetBase
-from users.enums import UserRole, UserPermissions
-from users.models import CustomUser
+from users.enums import UserPermissions
 from users.permissions import IsStaff, HasUserPermission
 
 __all__ = ['AmenityViewSet', 'AmenityListQueryParams']
@@ -74,7 +73,7 @@ class AmenityViewSet(
 
         return [IsAuthenticated()]
 
-    def get_serializer(self, *args, **kwargs):
+    def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return AmenityReadSerializer(*args, **kwargs)
-        return AmenityWriteSerializer(*args, **kwargs)
+            return AmenityReadSerializer
+        return AmenityWriteSerializer

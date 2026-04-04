@@ -90,14 +90,12 @@ class StaffViewSet(
 
         return [IsStaff()]
 
-    def get_serializer(self, *args, **kwargs):
+    def get_serializer_class(self):
         if self.action == 'create':
-            return CreateStaffSerializer(*args, **kwargs)
-
+            return CreateStaffSerializer
         if self.action == 'partial_update':
-            return UpdateStaffSerializer(*args, **kwargs)
-
-        return GetStaffSerializer(*args, **kwargs)
+            return UpdateStaffSerializer
+        return GetStaffSerializer
 
     @action(url_path='update-permissions', detail=True, methods=(HTTPMethod.PATCH,))
     def update_permissions(self, request, *args, **kwargs):

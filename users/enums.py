@@ -39,3 +39,5 @@ class UserPermissions(AppIntEnum):
     ManageSuppliers = 15
     AmenitiesAdministration = 16
     AmenitiesModification = 17
+    AmenityVendorAdministration = 18
+    AmenityVendorModification = 19

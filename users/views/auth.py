@@ -18,17 +18,14 @@ __all__ = ['AuthViewSet']
 class AuthViewSet(ViewSetBase[CustomUserQuerySet]):
     queryset = CustomUser.objects.all()
 
-    def get_serializer(self, *args, **kwargs):
+    def get_serializer_class(self):
         if self.action == 'change_password':
-            return ChangePasswordSerializer(*args, **kwargs)
-
+            return ChangePasswordSerializer
         if self.action == 'register':
-            return RegisterUserSerializer(*args, **kwargs)
-
+            return RegisterUserSerializer
         if self.action == 'logout':
-            return LogoutSerializer(*args, **kwargs)
-
-        return LoginSerializer(*args, **kwargs)
+            return LogoutSerializer
+        return LoginSerializer
 
     # Этот метод не должен использоваться при создании менеджера/админа -
     # обрабатывать нужно отдельно, будто менеджер/админ создает другого менеджера/админа
