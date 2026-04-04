@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from rest_framework.permissions import SAFE_METHODS, IsAdminUser
 
 from common_core.classes import ViewSetBase
@@ -9,7 +10,7 @@ from django.db import transaction
 from books_model.models import Book, BookBasis
 
 
-class LibraryBranchViewSet(ViewSetBase[LibraryBranch], RetrieveModelMixin, ListModelMixin, CreateModelMixin,
+class LibraryBranchViewSet(ViewSetBase[QuerySet[LibraryBranch]], RetrieveModelMixin, ListModelMixin, CreateModelMixin,
                            UpdateModelMixin):
     serializer_class = LibraryBranchSerializer
     queryset = LibraryBranch.objects.all()

@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin, CreateModelMixin, DestroyModelMixin
 
 from common_core.classes import ViewSetBase
@@ -9,7 +10,7 @@ from users.enums import UserPermissions
 __all__ = ['PositionsViewSet']
 
 
-class PositionsViewSet(ViewSetBase[StaffPosition], ListModelMixin, UpdateModelMixin, CreateModelMixin,
+class PositionsViewSet(ViewSetBase[QuerySet[StaffPosition]], ListModelMixin, UpdateModelMixin, CreateModelMixin,
                        DestroyModelMixin):
     queryset = StaffPosition.objects.all()
     serializer_class = WritePositionSerializer

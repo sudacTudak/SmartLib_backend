@@ -2,16 +2,17 @@ from __future__ import annotations
 
 from typing import cast
 
-from django.db.models import QuerySet
 from pydantic import BaseModel, Field
 from rest_framework import status
-from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import NotAuthenticated, ParseError
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 
-from common_core.classes import LibraryStaffRestrictedViewSetBase
+from common_core.classes import ViewSetBase
 from http_core import HTTPResponse
 from inventory_movement.enums import InventoryMovementType
 from inventory_movement.models import InventoryMovement
+from inventory_movement.queryset import InventoryMovementQuerySet
+from users.models import CustomUser
 from inventory_movement.serializers.movement_in_write import WriteMovementInSerializer
 from inventory_movement.serializers.movement_out_write import WriteMovementOutSerializer
 from inventory_movement.serializers.movement_read import ReadInventoryMovementSerializer
@@ -29,19 +30,22 @@ class InventoryMovementQueryParams(BaseModel):
     }
 
 
-class InventoryMovementViewSet(LibraryStaffRestrictedViewSetBase[InventoryMovement], CreateModelMixin, ListModelMixin):
+class InventoryMovementViewSet(ViewSetBase[InventoryMovementQuerySet], CreateModelMixin, ListModelMixin):
     queryset = InventoryMovement.objects.all()
-    library_restrict_field_lookup = 'library_branch_id'
 
     def get_query_params_model_class(self):
         if self.action == 'list':
             return InventoryMovementQueryParams
         return None
 
-    def _get_base_model_queryset(self) -> QuerySet[InventoryMovement]:
-        return super()._get_base_model_queryset().select_related('supplier', 'library_branch', 'book_basis')
+    def _get_base_model_queryset(self) -> InventoryMovementQuerySet:
+        user = cast(CustomUser, self.request.user)
+        return (
+            InventoryMovement.objects.select_related('supplier', 'library_branch', 'book_basis')
+            .scoped_for_staff_same_library(user)
+        )
 
-    def _apply_query_params_for_queryset(self, qs: QuerySet[InventoryMovement]):
+    def _apply_query_params_for_queryset(self, qs: InventoryMovementQuerySet) -> InventoryMovementQuerySet:
         params = self.get_processed_query_params()
         if params is None:
             return qs

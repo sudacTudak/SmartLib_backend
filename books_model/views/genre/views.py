@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from rest_framework.mixins import UpdateModelMixin, CreateModelMixin, DestroyModelMixin
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -9,7 +10,7 @@ from common_core.classes import ViewSetBase
 __all__ = ['GenreViewSet']
 
 
-class GenreViewSet(ViewSetBase[Genre], ReadOnlyModelViewSet, CreateModelMixin, UpdateModelMixin, DestroyModelMixin):
+class GenreViewSet(ViewSetBase[QuerySet[Genre]], ReadOnlyModelViewSet, CreateModelMixin, UpdateModelMixin, DestroyModelMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 

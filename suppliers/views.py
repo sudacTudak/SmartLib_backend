@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from pydantic import BaseModel, Field
 from rest_framework.mixins import (
     RetrieveModelMixin,
@@ -26,7 +27,7 @@ class SupplierListQueryParams(BaseModel):
 
 
 class SupplierViewSet(
-    ViewSetBase[Supplier],
+    ViewSetBase[QuerySet[Supplier]],
     RetrieveModelMixin,
     ListModelMixin,
     CreateModelMixin,

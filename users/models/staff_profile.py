@@ -8,7 +8,6 @@ from positions.models import StaffPosition
 from uuid import uuid4 as uuid
 
 from users.models import CustomUser
-from typing import TYPE_CHECKING
 
 __all__ = ['StaffProfile']
 
@@ -22,6 +21,7 @@ class StaffProfile(models.Model):
         on_delete=models.PROTECT,
         null=True,
     )
+    library_branch_id: str
     position = models.ForeignKey(StaffPosition, related_name='staff', on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -29,7 +29,3 @@ class StaffProfile(models.Model):
     class Meta:
         db_table = 'staff_profile'
         ordering = ('created_at',)
-
-if TYPE_CHECKING:
-    class StaffProfile:
-        library_branch_id = models.UUIDField()

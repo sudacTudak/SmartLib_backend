@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import MinValueValidator
@@ -5,6 +7,7 @@ from uuid import uuid4 as uuid
 
 from books_model.models import BookBasis
 from inventory_movement.enums import InventoryMovementType
+from inventory_movement.manager import InventoryMovementManager
 from library.models import LibraryBranch
 from suppliers.models import Supplier
 
@@ -22,6 +25,8 @@ class InventoryMovement(models.Model):
     reason = models.CharField(max_length=255, blank=True)
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects: ClassVar[InventoryMovementManager] = InventoryMovementManager()
 
     class Meta:
         db_table = 'inventory_movements'

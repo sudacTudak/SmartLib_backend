@@ -23,7 +23,7 @@ from users.permissions import IsStaff, HasUserPermission
 __all__ = ['BookViewSet']
 
 
-class BookViewSet(ViewSetBase[Book], RetrieveModelMixin):
+class BookViewSet(ViewSetBase[QuerySet[Book]], RetrieveModelMixin):
     serializer_class = BookByLibrarySerializer
     queryset = Book.objects.all()
 

@@ -1,22 +1,20 @@
 from django.db.models import QuerySet
 from pydantic import BaseModel, ValidationError
-from rest_framework.exceptions import ParseError, NotAuthenticated
+from rest_framework.exceptions import ParseError
 from rest_framework.request import Request
 from rest_framework.viewsets import GenericViewSet
 
 from http_core import HTTPResponse
 
 from http_core import ResponseBodySuccess
-from typing import Generic, TypeVar, cast
+from typing import Any, Generic, TypeVar, cast
 
-from users.models import CustomUser
+__all__ = ['ViewSetBase']
 
-__all__ = ['ViewSetBase', 'LibraryStaffRestrictedViewSetBase']
-
-ModelT = TypeVar("ModelT")
+QuerySetT = TypeVar("QuerySetT", bound=QuerySet[Any])
 
 
-class ViewSetBase(Generic[ModelT], GenericViewSet):
+class ViewSetBase(Generic[QuerySetT], GenericViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     _processed_query_params: BaseModel | None = None
@@ -42,15 +40,15 @@ class ViewSetBase(Generic[ModelT], GenericViewSet):
         except ValidationError as exc:
             raise ParseError(detail=exc.errors())
 
-    def _get_base_model_queryset(self) -> QuerySet[ModelT]:
+    def _get_base_model_queryset(self) -> QuerySetT:
         return super().get_queryset()
 
-    def _apply_query_params_for_queryset(self, qs: QuerySet[ModelT]):
+    def _apply_query_params_for_queryset(self, qs: QuerySetT) -> QuerySetT:
         if self.get_processed_query_params() is None:
             return qs
         return qs
 
-    def get_queryset(self) -> QuerySet[ModelT]:
+    def get_queryset(self) -> QuerySetT:
         qs = self._get_base_model_queryset()
         qs = self._apply_query_params_for_queryset(qs)
 
@@ -76,25 +74,3 @@ class ViewSetBase(Generic[ModelT], GenericViewSet):
 
         response.data = body
         return response
-
-
-class LibraryStaffRestrictedViewSetBase(Generic[ModelT], ViewSetBase[ModelT]):
-    library_restrict_field_lookup = 'library_branch_id'
-
-    def _get_base_model_queryset(self) -> QuerySet[ModelT]:
-        user = cast(CustomUser, self.request.user)
-        base_qs = super()._get_base_model_queryset()
-        filter_params: dict[str, str] = dict()
-
-        if not user or not user.is_authenticated:
-            raise NotAuthenticated(f'Невозможно получить доступ к данным {self.basename}: пользователь не авторизован.')
-
-        if user.is_admin:
-            return base_qs
-
-        try:
-            filter_params[self.library_restrict_field_lookup] = user.staff_profile.library_branch_id
-        except Exception as e:
-            raise PermissionError(f'Невозможно получить доступ к данным {self.basename}') from e
-
-        return base_qs.filter(**filter_params)

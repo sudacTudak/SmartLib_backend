@@ -6,7 +6,7 @@ from users.serializers import GetUserPublicSerializer
 
 __all__ = ['UsersViewSet']
 
-class UsersViewSet(ViewSetBase[CustomUser], RetrieveModelMixin, ListModelMixin):
+class UsersViewSet(ViewSetBase[CustomUserQuerySet], RetrieveModelMixin, ListModelMixin):
     queryset = CustomUser.objects.all()
 
     def get_queryset(self) -> CustomUserQuerySet:

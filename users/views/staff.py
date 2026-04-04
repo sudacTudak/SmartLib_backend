@@ -4,14 +4,14 @@ from django.http import Http404
 from pydantic import BaseModel, Field, UUID4
 from rest_framework.decorators import action
 from rest_framework import status
+from rest_framework.exceptions import NotAuthenticated
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin
 
-from common_core.classes import LibraryStaffRestrictedViewSetBase
+from common_core.classes import ViewSetBase
 from http_core import HTTPResponse
 from users.models import CustomUser, CustomUserQuerySet, UserPermission
-from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, CreateModelMixin
-
-from users.permissions import IsStaff, HasUserPermission, CanModifyPermissions
-from users.serializers import GetStaffSerializer, UpdateUserPermissionSerializer, CreateStaffSerializer
+from users.permissions import IsStaff, HasUserPermission, CanModifyPermissions, SameLibraryObjectPermission
+from users.serializers import GetStaffSerializer, UpdateUserPermissionSerializer, CreateStaffSerializer, UpdateStaffSerializer
 from typing import cast
 from users.enums import UserPermissions, UserRole
 
@@ -31,29 +31,39 @@ class StaffListQueryParams(BaseModel):
     }
 
 
-class StaffViewSet(LibraryStaffRestrictedViewSetBase[CustomUser], RetrieveModelMixin, ListModelMixin, CreateModelMixin):
+class StaffViewSet(
+    ViewSetBase[CustomUserQuerySet],
+    RetrieveModelMixin,
+    ListModelMixin,
+    CreateModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin,
+):
     queryset = CustomUser.objects.all()
-    library_restrict_field_lookup = 'staff_profile__library_branch_id'
 
     def get_query_params_model_class(self):
         if self.action == 'list':
             return StaffListQueryParams
         return None
 
-    def _apply_query_params_for_queryset(self, qs: CustomUserQuerySet):
-        params = cast(StaffListQueryParams, self.get_processed_query_params())
-        print(1)
+    def _get_base_model_queryset(self) -> CustomUserQuerySet:
+        user = cast(CustomUser, self.request.user)
+        if not user.is_authenticated:
+            raise NotAuthenticated(
+                f'Невозможно получить доступ к данным {self.basename}: пользователь не авторизован.'
+            )
+        return CustomUser.objects.all().scoped_for_staff_same_library(user)
+
+    def _apply_query_params_for_queryset(self, qs: CustomUserQuerySet) -> CustomUserQuerySet:
+        params = cast(StaffListQueryParams | None, self.get_processed_query_params())
         if params is None:
             return qs
-        print(2)
         result_qs = qs
 
         if library_id := params.library_id:
-            print(3, library_id, params, sep=' ')
             user = cast(CustomUser, self.request.user)
 
             if user.is_admin:
-                print(4)
                 result_qs = result_qs.get_library_managers(str(library_id))
 
         if position_id := params.position_id:
@@ -72,11 +82,20 @@ class StaffViewSet(LibraryStaffRestrictedViewSetBase[CustomUser], RetrieveModelM
         if self.action == 'create':
             return [IsStaff(), HasUserPermission(UserPermissions.ManagerAdministration)]
 
+        if self.action in ('partial_update', 'destroy'):
+            return [
+                IsStaff(),
+                SameLibraryObjectPermission(object_library_branch_lookup='staff_profile__library_branch_id'),
+            ]
+
         return [IsStaff()]
 
     def get_serializer(self, *args, **kwargs):
         if self.action == 'create':
             return CreateStaffSerializer(*args, **kwargs)
+
+        if self.action == 'partial_update':
+            return UpdateStaffSerializer(*args, **kwargs)
 
         return GetStaffSerializer(*args, **kwargs)
 
@@ -86,8 +105,7 @@ class StaffViewSet(LibraryStaffRestrictedViewSetBase[CustomUser], RetrieveModelM
 
         try:
             user = cast(CustomUser, self.get_object())
-        except (Http404,) as e:
-            print(e)
+        except Http404:
             raise Http404(f'Пользователь с идентификатором {user_id} не найден')
 
         serializer = UpdateUserPermissionSerializer(data=request.data)

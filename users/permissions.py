@@ -8,7 +8,23 @@ from typing import cast, Collection
 from users.models import CustomUser
 from users.serializers import UpdateUserPermissionSerializer
 
-__all__ = ['IsAdmin', 'IsStaff', 'HasUserPermission', 'CanModifyPermissions']
+__all__ = [
+    'IsAdmin',
+    'IsStaff',
+    'HasUserPermission',
+    'CanModifyPermissions',
+    'SameLibraryObjectPermission',
+]
+
+
+def _get_by_lookup(obj: object, lookup: str) -> object | None:
+    """Цепочка атрибутов как у Django lookup: ``staff_profile__library_branch_id``."""
+    target: object | None = obj
+    for name in lookup.split('__'):
+        if target is None:
+            return None
+        target = getattr(target, name, None)
+    return target
 
 
 class HasRole(IsAuthenticated):
@@ -72,3 +88,30 @@ class CanModifyPermissions(BasePermission):
             return False
 
         return True
+
+
+class SameLibraryObjectPermission(BasePermission):
+    """Сравнивает ``library_branch_id`` объекта и текущего пользователя по настраиваемым lookup."""
+
+    def __init__(
+        self,
+        *,
+        object_library_branch_lookup: str,
+        user_library_branch_lookup: str = 'staff_profile__library_branch_id',
+    ):
+        self.object_library_branch_lookup = object_library_branch_lookup
+        self.user_library_branch_lookup = user_library_branch_lookup
+
+    def has_object_permission(self, request, view, obj):
+        user = cast(CustomUser, request.user)
+        if not user.is_authenticated:
+            return False
+        if user.is_admin:
+            return True
+
+        object_branch_id = _get_by_lookup(obj, self.object_library_branch_lookup)
+        user_branch_id = _get_by_lookup(user, self.user_library_branch_lookup)
+
+        if object_branch_id is None or user_branch_id is None:
+            return False
+        return object_branch_id == user_branch_id

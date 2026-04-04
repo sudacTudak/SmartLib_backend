@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 
@@ -19,7 +20,7 @@ from users.enums import UserPermissions
 __all__ = ['BookBasisViewSet']
 
 
-class BookBasisViewSet(ViewSetBase[BookBasis], ReadOnlyModelViewSet, CreateModelMixin, UpdateModelMixin,
+class BookBasisViewSet(ViewSetBase[QuerySet[BookBasis]], ReadOnlyModelViewSet, CreateModelMixin, UpdateModelMixin,
                        DestroyModelMixin):
     serializer_class = BookBasisSerializer
     queryset = BookBasis.objects.all()

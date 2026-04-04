@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'positions.apps.PositionsConfig',
     'suppliers.apps.SuppliersConfig',
     'inventory_movement.apps.InventoryMovementConfig',
+    'amenity.apps.AmenityConfig'
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'

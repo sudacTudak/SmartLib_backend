@@ -9,13 +9,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from common_core.classes import ViewSetBase
 from http_core import HTTPResponse
-from users.models import CustomUser
+from users.models import CustomUser, CustomUserQuerySet
 from users.serializers import RegisterUserSerializer, ChangePasswordSerializer, LogoutSerializer, LoginSerializer
 
 __all__ = ['AuthViewSet']
 
 
-class AuthViewSet(ViewSetBase[CustomUser]):
+class AuthViewSet(ViewSetBase[CustomUserQuerySet]):
     queryset = CustomUser.objects.all()
 
     def get_serializer(self, *args, **kwargs):
