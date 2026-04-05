@@ -10,7 +10,7 @@ BookBasisFieldsMeta = dict(
 )
 
 class BookBasis(models.Model):
-    id = models.AutoField(primary_key=True, default=uuid, editable=False)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid)
     title = models.CharField(max_length=BookBasisFieldsMeta['TITLE_MAX_LENGTH'])
     description = models.TextField(blank=True, null=True)
     author = models.CharField(max_length=BookBasisFieldsMeta['AUTHOR_MAX_LENGTH'])
