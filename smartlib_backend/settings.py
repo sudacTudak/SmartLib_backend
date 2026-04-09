@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'positions.apps.PositionsConfig',
     'suppliers.apps.SuppliersConfig',
     'inventory_movement.apps.InventoryMovementConfig',
-    'amenity.apps.AmenityConfig'
+    'amenity.apps.AmenityConfig',
+    'book_loan.apps.BookLoanConfig'
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'

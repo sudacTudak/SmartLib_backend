@@ -6,9 +6,9 @@ from django.db.models import QuerySet, Count, Q
 from users.enums import UserRole, UserPermissions
 
 from django.core.exceptions import ObjectDoesNotExist
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, TypeVar, cast
 
-__all__ = ['CustomUserQuerySet']
+__all__ = ['CustomUserQuerySet', 'TypeCustomUserQuerySet']
 
 if TYPE_CHECKING:
     from .models import CustomUser
@@ -35,7 +35,7 @@ class CustomUserQuerySet(_Base):
 
     def get_by_email(self, email: str) -> CustomUser | None:
         try:
-            return self.get(email=email)
+            return cast(CustomUser, self.get(email=email))
         except (ObjectDoesNotExist,):
             return None
 
@@ -70,3 +70,6 @@ class CustomUserQuerySet(_Base):
             )
             .filter(matched_perms=len(permission_values))
         )
+
+
+TypeCustomUserQuerySet = TypeVar('TypeCustomUserQuerySet', bound=CustomUserQuerySet)

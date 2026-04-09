@@ -1,6 +1,5 @@
-from typing import TypeVar, Annotated, List, Type, TypeAlias
+from typing import TypeVar, Annotated, TypeAlias
 from pydantic import BeforeValidator
-from typing_extensions import TypeAliasType
 
 __all__ = ['OptionalListQueryParam']
 
@@ -16,8 +15,3 @@ def _as_list(value):
 T = TypeVar("T")
 
 OptionalListQueryParam: TypeAlias = Annotated[list[T] | None, BeforeValidator(_as_list)]
-
-# OptionalListQueryParam: TypeAliasType = TypeAliasType(
-#     "OptionalListQueryParam",
-#     Annotated[list[T] | None, BeforeValidator(_as_list)], type_params=(T,)
-# )

@@ -28,4 +28,5 @@ urlpatterns = [
     path(fr'{API_PATH_PREFIX}/inventory/', include('inventory_movement.urls')),
     path(fr'{API_PATH_PREFIX}/suppliers/', include('suppliers.urls')),
     path(fr'{API_PATH_PREFIX}/amenities/', include('amenity.urls')),
+    path(fr'{API_PATH_PREFIX}/book-loans/', include('book_loan.urls')),
 ]

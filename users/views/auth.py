@@ -4,6 +4,7 @@ from tokenize import TokenError
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework import status
+from rest_framework.status import HTTP_403_FORBIDDEN
 from rest_framework_simplejwt.exceptions import ExpiredTokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -11,6 +12,7 @@ from common_core.classes import ViewSetBase
 from http_core import HTTPResponse
 from users.models import CustomUser, CustomUserQuerySet
 from users.serializers import RegisterUserSerializer, ChangePasswordSerializer, LogoutSerializer, LoginSerializer
+from typing import cast
 
 __all__ = ['AuthViewSet']
 
@@ -45,11 +47,15 @@ class AuthViewSet(ViewSetBase[CustomUserQuerySet]):
         email = serializer.validated_data.get('email')
         password = serializer.validated_data.get('password')
 
-        user = CustomUser.objects.get_by_email(email)
-        print('user: ', user)
-        print('user check password: ', user.check_password(password))
+        user = cast(CustomUser, CustomUser.objects.get_by_email(email))
         if not user or not user.check_password(password):
             return HTTPResponse.failure(message="Неверный email или пароль", status_code=status.HTTP_401_UNAUTHORIZED)
+
+        if user.deleted_at:
+            return HTTPResponse.failure(message=f"Пользователь с email {email} не найден", status_code=status.HTTP_404_NOT_FOUND)
+
+        if not user.is_active:
+            return HTTPResponse.failure(message=f"Пользователь с email {email} деактивирован", status_code=HTTP_403_FORBIDDEN)
 
         refresh = RefreshToken.for_user(user)
         return HTTPResponse.success(data={

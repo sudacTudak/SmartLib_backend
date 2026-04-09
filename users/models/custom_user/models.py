@@ -38,6 +38,7 @@ class CustomUser(AbstractBaseUser, CustomPermissionsMixin):
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS: ClassVar[list[str]] = []
