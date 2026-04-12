@@ -14,7 +14,8 @@ if TYPE_CHECKING:
     from .models import CustomUser
 
     class _Base(QuerySet[CustomUser]):
-        pass
+        def all(self) -> TypeCustomUserQuerySet: ...
+        def filter(self, *args, **kwargs) -> TypeCustomUserQuerySet: ...
 else:
     class _Base(QuerySet):
         pass
