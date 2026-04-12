@@ -11,7 +11,15 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from common_core.classes import ViewSetBase
 from http_core import HTTPResponse
 from users.models import CustomUser, CustomUserQuerySet
-from users.serializers import RegisterUserSerializer, ChangePasswordSerializer, LogoutSerializer, LoginSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
+from users.serializers import (
+    ChangePasswordSerializer,
+    LoginSerializer,
+    LogoutSerializer,
+    RegisterUserSerializer,
+    ResetPasswordSerializer,
+)
 from typing import cast
 
 __all__ = ['AuthViewSet']
@@ -20,9 +28,16 @@ __all__ = ['AuthViewSet']
 class AuthViewSet(ViewSetBase[CustomUserQuerySet]):
     queryset = CustomUser.objects.all()
 
+    def get_permissions(self):
+        if self.action == 'change_password':
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
     def get_serializer_class(self):
         if self.action == 'change_password':
             return ChangePasswordSerializer
+        if self.action == 'reset_password':
+            return ResetPasswordSerializer
         if self.action == 'register':
             return RegisterUserSerializer
         if self.action == 'logout':
@@ -81,10 +96,24 @@ class AuthViewSet(ViewSetBase[CustomUserQuerySet]):
         return HTTPResponse.success(status_code=status.HTTP_205_RESET_CONTENT)
 
 
-    @action(url_path='change-password', detail=True, methods=[HTTPMethod.POST])
-    def change_password(self, request: Request, *_args, **_kwargs):
+    @action(url_path='reset-password', detail=False, methods=[HTTPMethod.POST])
+    def reset_password(self, request: Request):
+        """Сброс пароля без авторизации: email + текущий пароль + новый пароль."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return HTTPResponse.success(status_code=status.HTTP_200_OK)
 
+    @action(url_path='change-password', detail=True, methods=[HTTPMethod.POST])
+    def change_password(self, request: Request, *_args, **_kwargs):
+        """Смена пароля авторизованным пользователем; в URL — id пользователя (должен совпадать с токеном)."""
+        target = cast(CustomUser, self.get_object())
+        if str(target.pk) != str(request.user.pk):
+            return HTTPResponse.failure(
+                message='Можно сменить пароль только для текущего пользователя',
+                status_code=HTTP_403_FORBIDDEN,
+            )
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return HTTPResponse.success(status_code=status.HTTP_200_OK)

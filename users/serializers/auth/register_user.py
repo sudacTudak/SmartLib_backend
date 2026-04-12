@@ -13,7 +13,7 @@ class RegisterUserSerializer(BaseAuthSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('first_name', 'last_name', 'patronymic', 'gender',)
+        fields = ('first_name', 'last_name', 'patronymic', 'gender')
 
     def update(self, instance, validated_data):
         pass

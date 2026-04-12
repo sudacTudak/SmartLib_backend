@@ -5,12 +5,13 @@ from rest_framework.fields import CharField
 from users.models import CustomUser
 from users.serializers.auth.base import PASSWORD_FIELD_META
 
-__all__ = ['ChangePasswordSerializer']
+__all__ = ['ResetPasswordSerializer']
 
 
-class ChangePasswordSerializer(serializers.Serializer):
-    """Смена пароля авторизованным пользователем: текущий пароль + новый (без email в теле)."""
+class ResetPasswordSerializer(serializers.Serializer):
+    """Сброс пароля без авторизации: email + текущий пароль + новый пароль."""
 
+    email = serializers.EmailField(max_length=254, required=True, write_only=True)
     password = CharField(**PASSWORD_FIELD_META)
     new_password = CharField(**PASSWORD_FIELD_META)
     new_password_repeat = CharField(**PASSWORD_FIELD_META)
@@ -21,10 +22,8 @@ class ChangePasswordSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        request = self.context['request']
-        email = request.user.email
         return CustomUser.objects.change_password(
-            email=email,
+            email=validated_data['email'],
             current_password=validated_data['password'],
             new_password=validated_data['new_password'],
         )
