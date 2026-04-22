@@ -69,6 +69,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
+    'DEFAULT_PARSER_CLASSES': (
+        'common_core.parsers.camel_json.CamelCaseJSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'common_core.renderers.camel_json.CamelCaseJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
 }
 
 SIMPLE_JWT = {
@@ -167,6 +176,10 @@ CORS_ALLOWED_ORIGINS = [
     ).split(',')
     if origin.strip()
 ]
+
+# Фронт использует axios `withCredentials` (cookie / refresh), поэтому CORS должен разрешать credentials.
+# Важно: при `CORS_ALLOW_CREDENTIALS=True` нельзя использовать `*` в Access-Control-Allow-Origin.
+CORS_ALLOW_CREDENTIALS = True
 
 SUPER_ADMIN = {
     "email": "root@root.com",
