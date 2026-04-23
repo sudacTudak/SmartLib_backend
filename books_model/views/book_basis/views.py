@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import Avg, Count, QuerySet
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 
@@ -24,6 +24,15 @@ class BookBasisViewSet(ViewSetBase[QuerySet[BookBasis]], ReadOnlyModelViewSet, C
                        DestroyModelMixin):
     serializer_class = BookBasisSerializer
     queryset = BookBasis.objects.all()
+
+    def get_queryset(self) -> QuerySet[BookBasis]:
+        qs = super().get_queryset()
+        if self.request.method in SAFE_METHODS:
+            qs = qs.annotate(
+                rating_avg=Avg('feedbacks__score'),
+                rating_count=Count('feedbacks', distinct=True),
+            )
+        return qs
 
     def get_permissions(self):
         # TODO: С разработкой нормальной модели пользователя

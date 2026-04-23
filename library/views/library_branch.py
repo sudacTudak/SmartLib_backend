@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import Avg, Count, QuerySet
 from rest_framework.permissions import SAFE_METHODS, IsAdminUser
 
 from common_core.classes import ViewSetBase
@@ -14,6 +14,15 @@ class LibraryBranchViewSet(ViewSetBase[QuerySet[LibraryBranch]], RetrieveModelMi
                            UpdateModelMixin):
     serializer_class = LibraryBranchSerializer
     queryset = LibraryBranch.objects.all()
+
+    def get_queryset(self) -> QuerySet[LibraryBranch]:
+        qs = super().get_queryset()
+        if self.request.method in SAFE_METHODS:
+            qs = qs.annotate(
+                rating_avg=Avg('feedbacks__score'),
+                rating_count=Count('feedbacks', distinct=True),
+            )
+        return qs
 
     def get_permissions(self):
         if self.request.method in SAFE_METHODS:
