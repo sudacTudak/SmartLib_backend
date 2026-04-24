@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
 
+    'authors.apps.AuthorsConfig',
     'books_model.apps.BooksModelConfig',
     'library.apps.LibraryConfig',
     'users.apps.UsersConfig',

@@ -5,12 +5,12 @@ from feedback.views import BookBasisFeedbackViewSet, LibraryBranchFeedbackViewSe
 router = AppRouter.from_configs(
     (
         AppRouter.Config(
-            prefix=r'books/book-bases/(?P<book_basis_pk>[^/.]+)/feedbacks',
+            prefix=r'book-bases',
             view=BookBasisFeedbackViewSet,
             basename='book-basis-feedback',
         ),
         AppRouter.Config(
-            prefix=r'libs/branch/(?P<library_branch_pk>[^/.]+)/feedbacks',
+            prefix=r'libs',
             view=LibraryBranchFeedbackViewSet,
             basename='library-branch-feedback',
         ),

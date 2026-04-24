@@ -1,21 +1,21 @@
 from http import HTTPMethod
+from typing import cast
 
 from django.db import IntegrityError
 from django.db.models import QuerySet
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 
 from common_core.classes import ViewSetBase
 from feedback.models import LibraryBranchFeedback
 from feedback.permissions import IsStaffOrFeedbackOwner
+from feedback.query_params import LibraryBranchByUserQueryParams
 from feedback.serializers import LibraryBranchFeedbackSerializer
 from http_core import HTTPResponse
-from library.models import LibraryBranch
 from users.permissions import IsStaff
 
 __all__ = ['LibraryBranchFeedbackViewSet']
@@ -30,6 +30,11 @@ class LibraryBranchFeedbackViewSet(
 ):
     serializer_class = LibraryBranchFeedbackSerializer
 
+    def get_query_params_model_class(self):
+        if self.action in ('list', 'by_user'):
+            return LibraryBranchByUserQueryParams
+        return None
+
     def get_permissions(self):
         if self.action in ('list',):
             return [IsStaff()]
@@ -43,20 +48,21 @@ class LibraryBranchFeedbackViewSet(
         return [IsAuthenticated()]
 
     def get_queryset(self) -> QuerySet[LibraryBranchFeedback]:
-        library_branch_id = self.kwargs.get('library_branch_pk')
-        return LibraryBranchFeedback.objects.filter(library_branch_id=library_branch_id).select_related(
-            'library_branch',
-            'client',
-        )
+        if self.action in ('list', 'by_user'):
+            params = cast(LibraryBranchByUserQueryParams | None, self.get_processed_query_params())
+            qs = LibraryBranchFeedback.objects.all().select_related('library_branch', 'client')
+            if params is not None and params.library_branch_id is not None:
+                qs = qs.filter(library_branch_id=str(params.library_branch_id))
+            return qs
 
-    def initial(self, request, *args, **kwargs):
-        super().initial(request, *args, **kwargs)
-        get_object_or_404(LibraryBranch, pk=self.kwargs.get('library_branch_pk'))
+        if self.action in ('create', 'partial_update', 'destroy'):
+            return LibraryBranchFeedback.objects.all().select_related('library_branch', 'client')
+
+        return LibraryBranchFeedback.objects.none()
 
     def perform_create(self, serializer):
-        library_branch = get_object_or_404(LibraryBranch, pk=self.kwargs.get('library_branch_pk'))
         try:
-            serializer.save(library_branch=library_branch, client=self.request.user)
+            serializer.save()
         except IntegrityError as exc:
             raise ValidationError({'nonFieldErrors': ['Отзыв для этого филиала уже существует']}) from exc
 

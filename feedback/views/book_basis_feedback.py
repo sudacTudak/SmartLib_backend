@@ -1,19 +1,19 @@
 from http import HTTPMethod
+from typing import cast
 
 from django.db import IntegrityError
 from django.db.models import QuerySet
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.mixins import CreateModelMixin, DestroyModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 
-from books_model.models import BookBasis
 from common_core.classes import ViewSetBase
 from feedback.models import BookBasisFeedback
 from feedback.permissions import IsStaffOrFeedbackOwner
+from feedback.query_params import BookBasisByUserQueryParams
 from feedback.serializers import BookBasisFeedbackSerializer
 from http_core import HTTPResponse
 from users.permissions import IsStaff
@@ -30,6 +30,11 @@ class BookBasisFeedbackViewSet(
 ):
     serializer_class = BookBasisFeedbackSerializer
 
+    def get_query_params_model_class(self):
+        if self.action in ('list', 'by_user'):
+            return BookBasisByUserQueryParams
+        return None
+
     def get_permissions(self):
         if self.action in ('list',):
             return [IsStaff()]
@@ -43,17 +48,21 @@ class BookBasisFeedbackViewSet(
         return [IsAuthenticated()]
 
     def get_queryset(self) -> QuerySet[BookBasisFeedback]:
-        book_basis_id = self.kwargs.get('book_basis_pk')
-        return BookBasisFeedback.objects.filter(book_basis_id=book_basis_id).select_related('book_basis', 'client')
+        if self.action in ('list', 'by_user'):
+            params = cast(BookBasisByUserQueryParams | None, self.get_processed_query_params())
+            qs = BookBasisFeedback.objects.all().select_related('book_basis', 'client')
+            if params is not None and params.book_basis_id is not None:
+                qs = qs.filter(book_basis_id=str(params.book_basis_id))
+            return qs
 
-    def initial(self, request, *args, **kwargs):
-        super().initial(request, *args, **kwargs)
-        get_object_or_404(BookBasis, pk=self.kwargs.get('book_basis_pk'))
+        if self.action in ('create', 'partial_update', 'destroy'):
+            return BookBasisFeedback.objects.all().select_related('book_basis', 'client')
+
+        return BookBasisFeedback.objects.none()
 
     def perform_create(self, serializer):
-        book_basis = get_object_or_404(BookBasis, pk=self.kwargs.get('book_basis_pk'))
         try:
-            serializer.save(book_basis=book_basis, client=self.request.user)
+            serializer.save()
         except IntegrityError as exc:
             raise ValidationError({'nonFieldErrors': ['Отзыв для этой книги уже существует']}) from exc
 

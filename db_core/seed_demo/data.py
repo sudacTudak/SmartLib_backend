@@ -41,6 +41,12 @@ BB_MASTER_MARGARITA_ID = "e79f917c-7bc9-4abd-9a5f-2df107a84717"
 BB_PRIDE_PREJUDICE_ID = "9a1f6915-007b-4ec6-9c5c-fccb75435bae"
 BB_1984_ID = "1504d5f7-689a-4204-87fa-8ce095e21513"
 
+AUTH_TOLSTOY_ID = "a1000000-0000-4000-8000-000000000001"
+AUTH_DOSTOEVSKY_ID = "a1000000-0000-4000-8000-000000000002"
+AUTH_BULGAKOV_ID = "a1000000-0000-4000-8000-000000000003"
+AUTH_AUSTEN_ID = "a1000000-0000-4000-8000-000000000004"
+AUTH_ORWELL_ID = "a1000000-0000-4000-8000-000000000005"
+
 # Порядок: для каждого BOOK_BASES сначала LIBRARY_BRANCHES[0], затем [1], …
 _BOOK_INSTANCE_IDS: tuple[str, ...] = (
     "de5259c2-b14b-4d39-a6ec-52976fd68b43",
@@ -116,10 +122,16 @@ class GenreSpec:
 
 
 @dataclass
+class AuthorSpec:
+    id: str
+    name: str
+
+
+@dataclass
 class BookBasisSpec:
     id: str
     title: str
-    author: str
+    author_id: str
     publisher: str
     created_year: int
     genre_id: str
@@ -140,6 +152,26 @@ class InventoryMovementInSpec:
     library_id: str
     supplier_id: str
     quantity: int
+
+
+@dataclass
+class BookBasisFeedbackSeedSpec:
+    """Один клиент — один отзыв на книгу (см. unique в модели)."""
+
+    book_basis_id: str
+    client_email: str
+    score: int
+    comment: str | None = None
+
+
+@dataclass
+class LibraryBranchFeedbackSeedSpec:
+    """Один клиент — один отзыв на филиал."""
+
+    library_branch_id: str
+    client_email: str
+    score: int
+    comment: str | None = None
 
 
 @dataclass
@@ -202,11 +234,19 @@ GENRES: list[GenreSpec] = [
     GenreSpec(id=G_GENRE_WORLD_ID, title="Зарубежная классика"),
 ]
 
+AUTHORS: list[AuthorSpec] = [
+    AuthorSpec(id=AUTH_TOLSTOY_ID, name="Л.Н. Толстой"),
+    AuthorSpec(id=AUTH_DOSTOEVSKY_ID, name="Ф.М. Достоевский"),
+    AuthorSpec(id=AUTH_BULGAKOV_ID, name="М.А. Булгаков"),
+    AuthorSpec(id=AUTH_AUSTEN_ID, name="Дж. Остен"),
+    AuthorSpec(id=AUTH_ORWELL_ID, name="Дж. Оруэлл"),
+]
+
 BOOK_BASES: list[BookBasisSpec] = [
     BookBasisSpec(
         id=BB_WAR_PEACE_ID,
         title="Война и мир",
-        author="Л.Н. Толстой",
+        author_id=AUTH_TOLSTOY_ID,
         publisher="Эксмо",
         created_year=1869,
         description="Роман-эпопея",
@@ -215,7 +255,7 @@ BOOK_BASES: list[BookBasisSpec] = [
     BookBasisSpec(
         id=BB_CRIME_PUNISHMENT_ID,
         title="Преступление и наказание",
-        author="Ф.М. Достоевский",
+        author_id=AUTH_DOSTOEVSKY_ID,
         publisher="АСТ",
         created_year=1866,
         description="",
@@ -224,7 +264,7 @@ BOOK_BASES: list[BookBasisSpec] = [
     BookBasisSpec(
         id=BB_MASTER_MARGARITA_ID,
         title="Мастер и Маргарита",
-        author="М.А. Булгаков",
+        author_id=AUTH_BULGAKOV_ID,
         publisher="АСТ",
         created_year=1967,
         description="",
@@ -233,7 +273,7 @@ BOOK_BASES: list[BookBasisSpec] = [
     BookBasisSpec(
         id=BB_PRIDE_PREJUDICE_ID,
         title="Гордость и предубеждение",
-        author="Дж. Остен",
+        author_id=AUTH_AUSTEN_ID,
         publisher="Penguin",
         created_year=1813,
         description="",
@@ -242,7 +282,7 @@ BOOK_BASES: list[BookBasisSpec] = [
     BookBasisSpec(
         id=BB_1984_ID,
         title="1984",
-        author="Дж. Оруэлл",
+        author_id=AUTH_ORWELL_ID,
         publisher="ACT",
         created_year=1949,
         description="",
@@ -277,6 +317,36 @@ CLIENT_USER = ClientUserSpec(
     first_name="Иван",
     last_name="Клиентов",
 )
+
+BOOK_BASIS_FEEDBACKS: list[BookBasisFeedbackSeedSpec] = [
+    BookBasisFeedbackSeedSpec(
+        book_basis_id=BB_WAR_PEACE_ID,
+        client_email=CLIENT_USER.email,
+        score=5,
+        comment="Очень сильное произведение, читал не спеша — рекомендую.",
+    ),
+    BookBasisFeedbackSeedSpec(
+        book_basis_id=BB_1984_ID,
+        client_email=CLIENT_USER.email,
+        score=4,
+        comment="Актуально и по сей день, атмосфера давит в хорошем смысле.",
+    ),
+]
+
+LIBRARY_BRANCH_FEEDBACKS: list[LibraryBranchFeedbackSeedSpec] = [
+    LibraryBranchFeedbackSeedSpec(
+        library_branch_id=LIB_MOSCOW_ID,
+        client_email=CLIENT_USER.email,
+        score=5,
+        comment="Уютный зал, персонал помог с выбором. Часто захожу.",
+    ),
+    LibraryBranchFeedbackSeedSpec(
+        library_branch_id=LIB_SPB_ID,
+        client_email=CLIENT_USER.email,
+        score=4,
+        comment="Удобное расположение, много свободных мест для чтения.",
+    ),
+]
 
 MANAGERS: list[StaffUserSpec] = [
     StaffUserSpec(

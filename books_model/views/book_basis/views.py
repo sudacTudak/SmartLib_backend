@@ -28,7 +28,7 @@ class BookBasisViewSet(ViewSetBase[QuerySet[BookBasis]], ReadOnlyModelViewSet, C
     def get_queryset(self) -> QuerySet[BookBasis]:
         qs = super().get_queryset()
         if self.request.method in SAFE_METHODS:
-            qs = qs.annotate(
+            qs = qs.select_related('author', 'genre').annotate(
                 rating_avg=Avg('feedbacks__score'),
                 rating_count=Count('feedbacks', distinct=True),
             )

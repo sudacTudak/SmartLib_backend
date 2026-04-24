@@ -10,7 +10,9 @@ from django.db import transaction
 
 from amenity.models import Amenity
 from amenity.models.amenity_vendor.model import AmenityVendor
+from authors.models import Author
 from books_model.models import Book, BookBasis, Genre
+from feedback.models import BookBasisFeedback, LibraryBranchFeedback
 from db_core.seed_demo import data as seed_data
 from inventory_movement.enums import InventoryMovementType
 from inventory_movement.models import InventoryMovement
@@ -28,6 +30,7 @@ def _validate_demo_config() -> None:
     library_ids = {b.id for b in seed_data.LIBRARY_BRANCHES}
     position_ids = {p.id for p in seed_data.STAFF_POSITIONS}
     genre_ids = {g.id for g in seed_data.GENRES}
+    author_ids = {a.id for a in seed_data.AUTHORS}
     book_basis_ids = {bb.id for bb in seed_data.BOOK_BASES}
     vendor_ids = {v.id for v in seed_data.AMENITY_VENDORS}
     supplier_ids = {s.id for s in seed_data.SUPPLIERS}
@@ -44,6 +47,20 @@ def _validate_demo_config() -> None:
     for bb in seed_data.BOOK_BASES:
         if bb.genre_id not in genre_ids:
             raise ValueError(f"Неизвестный genre_id у BookBasis id={bb.id}")
+        if bb.author_id not in author_ids:
+            raise ValueError(f"Неизвестный author_id у BookBasis id={bb.id}")
+
+    for fb in seed_data.BOOK_BASIS_FEEDBACKS:
+        if fb.book_basis_id not in book_basis_ids:
+            raise ValueError(f"Неизвестный book_basis_id в BOOK_BASIS_FEEDBACKS: {fb.book_basis_id}")
+        if fb.client_email != seed_data.CLIENT_USER.email:
+            raise ValueError(f"Неизвестный client_email в BOOK_BASIS_FEEDBACKS: {fb.client_email!r}")
+
+    for lf in seed_data.LIBRARY_BRANCH_FEEDBACKS:
+        if lf.library_branch_id not in library_ids:
+            raise ValueError(f"Неизвестный library_branch_id в LIBRARY_BRANCH_FEEDBACKS: {lf.library_branch_id}")
+        if lf.client_email != seed_data.CLIENT_USER.email:
+            raise ValueError(f"Неизвестный client_email в LIBRARY_BRANCH_FEEDBACKS: {lf.client_email!r}")
 
     inv_movement_ids: set[str] = set()
     for row in seed_data.INVENTORY_IN:
@@ -150,6 +167,14 @@ def run_seed_demo(
             g = Genre.objects.create(id=gid, title=row.title)
         genres_by_id[row.id] = g
 
+    authors_by_id: dict[str, Author] = {}
+    for row in seed_data.AUTHORS:
+        aid = uuid.UUID(row.id)
+        a = Author.objects.filter(pk=aid).first()
+        if a is None:
+            a = Author.objects.create(id=aid, name=row.name)
+        authors_by_id[row.id] = a
+
     book_bases_by_id: dict[str, BookBasis] = {}
     for row in seed_data.BOOK_BASES:
         bid = uuid.UUID(row.id)
@@ -158,7 +183,7 @@ def run_seed_demo(
             bb = BookBasis.objects.create(
                 id=bid,
                 title=row.title,
-                author=row.author,
+                author=authors_by_id[row.author_id],
                 publisher=row.publisher,
                 created_year=row.created_year,
                 description=row.description,
@@ -209,6 +234,28 @@ def run_seed_demo(
             last_name=seed_data.CLIENT_USER.last_name,
             role=UserRole.Client.value,
             is_staff=False,
+        )
+
+    client_demo = CustomUser.objects.get(email=seed_data.CLIENT_USER.email)
+    for spec in seed_data.BOOK_BASIS_FEEDBACKS:
+        if BookBasisFeedback.objects.filter(book_basis_id=uuid.UUID(spec.book_basis_id), client=client_demo).exists():
+            continue
+        BookBasisFeedback.objects.create(
+            book_basis=book_bases_by_id[spec.book_basis_id],
+            client=client_demo,
+            score=spec.score,
+            comment=spec.comment,
+        )
+
+    for spec in seed_data.LIBRARY_BRANCH_FEEDBACKS:
+        branch = branches_by_id[spec.library_branch_id]
+        if LibraryBranchFeedback.objects.filter(library_branch=branch, client=client_demo).exists():
+            continue
+        LibraryBranchFeedback.objects.create(
+            library_branch=branch,
+            client=client_demo,
+            score=spec.score,
+            comment=spec.comment,
         )
 
     admin_only_codes = {p.value for p in CustomUser.admin_only_permissions}
