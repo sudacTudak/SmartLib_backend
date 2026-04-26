@@ -1,7 +1,7 @@
-from django.db.models.fields import CharField
 from rest_framework import serializers
 
 from amenity.models import Amenity, AmenityVendor
+from common_core.drf import AbsoluteMediaUrlMixin, ProcessedImageField
 from library.models import LibraryBranch
 from .amenity_vendor import AmenityVendorReadSerializer
 
@@ -14,7 +14,8 @@ __all__ = [
 
 
 
-class AmenityReadSerializer(serializers.ModelSerializer):
+class AmenityReadSerializer(AbsoluteMediaUrlMixin, serializers.ModelSerializer):
+    absolute_url_fields = ("preview_link",)
     library_branch_id = serializers.UUIDField(read_only=True)
     vendor_id = serializers.UUIDField(read_only=True)
     vendor = AmenityVendorReadSerializer(read_only=True)
@@ -36,6 +37,7 @@ class AmenityWriteSerializer(serializers.ModelSerializer):
         queryset=AmenityVendor.objects.all(),
         source='vendor',
     )
+    preview_link = ProcessedImageField(required=False, allow_null=True)
 
     class Meta:
         model = Amenity

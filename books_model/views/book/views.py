@@ -31,7 +31,7 @@ class BookViewSet(ViewSetBase[QuerySet[Book]], RetrieveModelMixin):
         qs = super().get_queryset()
 
         if self.request.method in SAFE_METHODS:
-            qs = qs.select_related('book_basis', 'book_basis__author', 'book_basis__genre')
+            qs = qs.select_related('book_basis', 'book_basis__genre').prefetch_related('book_basis__authors')
 
         return qs
 

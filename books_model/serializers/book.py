@@ -1,5 +1,6 @@
+from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import CharField, IntegerField, ModelSerializer, UUIDField
+from rest_framework.serializers import CharField, IntegerField, ModelSerializer
 from books_model.models import Book
 
 __all__ = ['BookByLibrarySerializer']
@@ -8,8 +9,7 @@ __all__ = ['BookByLibrarySerializer']
 class BookByLibrarySerializer(ModelSerializer):
     library_branch_id = PrimaryKeyRelatedField(source='library_branch', read_only=True)
     genre_id = PrimaryKeyRelatedField(source='book_basis.genre', read_only=True)
-    author_id = UUIDField(source='book_basis.author_id', read_only=True)
-    author_name = CharField(source='book_basis.author.name', read_only=True)
+    author_ids = serializers.SerializerMethodField()
 
     title = CharField(source='book_basis.title')
     publisher = CharField(source='book_basis.publisher')
@@ -24,8 +24,7 @@ class BookByLibrarySerializer(ModelSerializer):
             'library_branch_id',
             'genre_id',
             'title',
-            'author_id',
-            'author_name',
+            'author_ids',
             'publisher',
             'description',
             'created_year',
@@ -38,8 +37,7 @@ class BookByLibrarySerializer(ModelSerializer):
         read_only_fields = (
             'id',
             'title',
-            'author_id',
-            'author_name',
+            'author_ids',
             'publisher',
             'description',
             'created_year',
@@ -47,3 +45,7 @@ class BookByLibrarySerializer(ModelSerializer):
             'created_at',
             'updated_at',
         )
+
+    @staticmethod
+    def get_author_ids(obj: Book) -> list[str]:
+        return [str(aid) for aid in obj.book_basis.authors.order_by('name').values_list('id', flat=True)]

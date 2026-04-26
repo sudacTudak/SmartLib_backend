@@ -1,4 +1,5 @@
-from django.db.models import Avg, Count, QuerySet
+from django.db.models import Avg, Count, IntegerField, OuterRef, QuerySet, Subquery, Sum
+from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 
@@ -12,6 +13,7 @@ from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyMod
 from django.db import transaction
 from typing import cast
 
+from books_model.query_params import BookBasisListQueryParams
 from library.models import LibraryBranch
 
 from users.permissions import HasUserPermission, IsStaff
@@ -25,13 +27,35 @@ class BookBasisViewSet(ViewSetBase[QuerySet[BookBasis]], ReadOnlyModelViewSet, C
     serializer_class = BookBasisSerializer
     queryset = BookBasis.objects.all()
 
+    def get_query_params_model_class(self):
+        if self.action == 'list':
+            return BookBasisListQueryParams
+        return None
+
     def get_queryset(self) -> QuerySet[BookBasis]:
         qs = super().get_queryset()
         if self.request.method in SAFE_METHODS:
-            qs = qs.select_related('author', 'genre').annotate(
+            qs = qs.select_related('genre').prefetch_related('authors').annotate(
                 rating_avg=Avg('feedbacks__score'),
                 rating_count=Count('feedbacks', distinct=True),
             )
+            if self.action in ('list', 'retrieve'):
+                books_available_subq = (
+                    Book.objects.filter(book_basis_id=OuterRef('pk'))
+                    .values('book_basis_id')
+                    .annotate(_avail_sum=Sum('available_count'))
+                    .values('_avail_sum')[:1]
+                )
+                qs = qs.annotate(
+                    books_available_total=Coalesce(
+                        Subquery(books_available_subq, output_field=IntegerField()),
+                        0,
+                    ),
+                )
+            if self.action == 'list':
+                params = cast(BookBasisListQueryParams | None, self.get_processed_query_params())
+                if params is not None and params.only_available is True:
+                    qs = qs.filter(books_available_total__gt=0)
         return qs
 
     def get_permissions(self):

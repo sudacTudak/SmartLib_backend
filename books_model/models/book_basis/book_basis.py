@@ -1,6 +1,8 @@
 from django.db import models
 from uuid import uuid4 as uuid
 
+from books_model.storage_paths import BookPreviewUploadPath
+
 __all__ = ['BookBasis', 'BookBasisFieldsMeta']
 
 BookBasisFieldsMeta = dict(
@@ -12,11 +14,12 @@ class BookBasis(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid)
     title = models.CharField(max_length=BookBasisFieldsMeta['TITLE_MAX_LENGTH'])
     description = models.TextField(blank=True, null=True)
-    author = models.ForeignKey('authors.Author', related_name='book_bases', on_delete=models.PROTECT)
+    authors = models.ManyToManyField('authors.Author', related_name='book_bases', blank=True)
     publisher = models.CharField(max_length=BookBasisFieldsMeta['PUBLISHER_MAX_LENGTH'])
     created_year = models.PositiveIntegerField()
     genre = models.ForeignKey('books_model.Genre', related_name='book_bases_ids', on_delete=models.PROTECT)
     online_version_link = models.TextField(blank=True, null=True)
+    preview_link = models.ImageField(upload_to=BookPreviewUploadPath(), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

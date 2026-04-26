@@ -164,6 +164,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# User uploads (book/library previews, etc.)
+# Stored on disk; served via nginx in production (Django can serve only in DEBUG).
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/smartlib-assets/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

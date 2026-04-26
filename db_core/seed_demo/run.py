@@ -47,8 +47,11 @@ def _validate_demo_config() -> None:
     for bb in seed_data.BOOK_BASES:
         if bb.genre_id not in genre_ids:
             raise ValueError(f"Неизвестный genre_id у BookBasis id={bb.id}")
-        if bb.author_id not in author_ids:
-            raise ValueError(f"Неизвестный author_id у BookBasis id={bb.id}")
+        if not bb.author_ids:
+            raise ValueError(f"Пустой author_ids у BookBasis id={bb.id}")
+        for aid in bb.author_ids:
+            if aid not in author_ids:
+                raise ValueError(f"Неизвестный author_id {aid!r} у BookBasis id={bb.id}")
 
     for fb in seed_data.BOOK_BASIS_FEEDBACKS:
         if fb.book_basis_id not in book_basis_ids:
@@ -183,12 +186,13 @@ def run_seed_demo(
             bb = BookBasis.objects.create(
                 id=bid,
                 title=row.title,
-                author=authors_by_id[row.author_id],
                 publisher=row.publisher,
                 created_year=row.created_year,
                 description=row.description,
                 genre=genres_by_id[row.genre_id],
+                online_version_link=row.online_version_link,
             )
+            bb.authors.set(authors_by_id[aid] for aid in row.author_ids)
         book_bases_by_id[row.id] = bb
 
     for spec in seed_data.BOOK_INSTANCES:
