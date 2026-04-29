@@ -3,20 +3,20 @@ from __future__ import annotations
 from pydantic import BaseModel, Field, UUID4
 
 __all__ = [
-    'BookBasisParentQueryParams',
-    'BookBasisByUserQueryParams',
+    'WorkParentQueryParams',
+    'WorkByUserQueryParams',
     'LibraryBranchParentQueryParams',
     'LibraryBranchByUserQueryParams',
 ]
 
 
-class BookBasisParentQueryParams(BaseModel):
-    book_basis_id: UUID4 | None = Field(None, alias='bookBasisId')
+class WorkParentQueryParams(BaseModel):
+    work_id: UUID4 | None = Field(None, alias='workId')
 
     model_config = {'populate_by_name': True}
 
 
-class BookBasisByUserQueryParams(BookBasisParentQueryParams):
+class WorkByUserQueryParams(WorkParentQueryParams):
     client_id: UUID4 | None = Field(None, alias='clientId')
 
     model_config = {'populate_by_name': True}

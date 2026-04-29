@@ -41,7 +41,7 @@ class InventoryMovementViewSet(ViewSetBase[InventoryMovementQuerySet], CreateMod
     def _get_base_model_queryset(self) -> InventoryMovementQuerySet:
         user = cast(CustomUser, self.request.user)
         return (
-            InventoryMovement.objects.select_related('supplier', 'library_branch', 'book_basis')
+            InventoryMovement.objects.select_related('supplier', 'library_branch', 'work')
             .scoped_for_staff_same_library(user)
         )
 

@@ -1,4 +1,4 @@
-from .book_basis_feedback import BookBasisFeedbackViewSet
+from .book_basis_feedback import WorkFeedbackViewSet
 from .library_branch_feedback import LibraryBranchFeedbackViewSet
 
-__all__ = ['BookBasisFeedbackViewSet', 'LibraryBranchFeedbackViewSet']
+__all__ = ['WorkFeedbackViewSet', 'LibraryBranchFeedbackViewSet']

@@ -1,13 +1,13 @@
 from http_core import AppRouter
 
-from feedback.views import BookBasisFeedbackViewSet, LibraryBranchFeedbackViewSet
+from feedback.views import WorkFeedbackViewSet, LibraryBranchFeedbackViewSet
 
 router = AppRouter.from_configs(
     (
         AppRouter.Config(
-            prefix=r'book-bases',
-            view=BookBasisFeedbackViewSet,
-            basename='book-basis-feedback',
+            prefix=r'works',
+            view=WorkFeedbackViewSet,
+            basename='work-feedback',
         ),
         AppRouter.Config(
             prefix=r'libs',

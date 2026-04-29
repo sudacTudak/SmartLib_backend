@@ -52,3 +52,13 @@ class UploadPathBase(ABC):
     def __call__(self, instance: Any, filename: str) -> str:
         return self.get_path(instance, filename)
 
+    def deconstruct(self):
+        """
+        Allow Django migrations to serialize `upload_to` callables.
+
+        Django expects `deconstruct()` to return (path, args, kwargs) so the
+        callable can be reconstructed when applying historical migrations.
+        """
+        path = f"{self.__class__.__module__}.{self.__class__.__qualname__}"
+        return path, [], {"id_lookup": self.id_lookup}
+

@@ -9,7 +9,7 @@ __all__ = ['ReadInventoryMovementSerializer']
 class ReadInventoryMovementSerializer(BaseMovementSerializer):
     supplier_id = serializers.UUIDField(source='supplier_id', allow_null=True)
     library_branch_id = serializers.UUIDField(source='library_branch_id')
-    book_basis_id = serializers.UUIDField(source='book_basis_id')
+    work_id = serializers.UUIDField(source='work_id')
 
     class Meta:
         model = InventoryMovement
@@ -17,7 +17,7 @@ class ReadInventoryMovementSerializer(BaseMovementSerializer):
             'id',
             'type',
             'library_branch_id',
-            'book_basis_id',
+            'work_id',
             'supplier_id',
             'quantity',
             'reason',

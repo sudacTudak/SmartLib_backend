@@ -69,7 +69,7 @@ AUTH_FLYNN_ID = "a1000000-0000-4000-8000-000000000010"
 AUTH_LARSSON_ID = "a1000000-0000-4000-8000-000000000011"
 AUTH_HUGO_ID = "a1000000-0000-4000-8000-000000000012"
 
-# Порядок: для каждого BOOK_BASES сначала LIBRARY_BRANCHES[0], затем [1], …
+# Порядок: для каждого WORKS сначала LIBRARY_BRANCHES[0], затем [1], …
 _BOOK_INSTANCE_IDS: tuple[str, ...] = (
     "de5259c2-b14b-4d39-a6ec-52976fd68b43",
     "988f1b6b-f2a2-4d29-b525-c076cad7c0db",
@@ -103,7 +103,7 @@ _BOOK_INSTANCE_IDS: tuple[str, ...] = (
     "579f5fa0-6687-4d2a-b397-a1dc14370554",
 )
 
-# Порядок как у BOOK_INSTANCES / INVENTORY_IN: для каждого BOOK_BASES × LIBRARY_BRANCHES
+# Порядок как у WORK_ITEMS / INVENTORY_IN: для каждого WORKS × LIBRARY_BRANCHES
 _INVENTORY_MOVEMENT_IDS: tuple[str, ...] = (
     "4f33ce0d-5a8b-46fb-ae72-d276562643f6",
     "e278c9de-6df8-47a0-903c-1f9d7941f750",
@@ -190,38 +190,39 @@ class AuthorSpec:
 
 
 @dataclass
-class BookBasisSpec:
+class WorkSpec:
     id: str
     title: str
     author_ids: list[str]
+    category: str
     publisher: str
     created_year: int
-    genre_id: str
+    genre_ids: list[str]
     description: str
     online_version_link: str | None = None
 
 
 @dataclass
-class BookInstanceSpec:
+class WorkItemSpec:
     id: str
-    book_basis_id: str
+    work_id: str
     library_id: str
 
 
 @dataclass
 class InventoryMovementInSpec:
     id: str
-    book_basis_id: str
+    work_id: str
     library_id: str
     supplier_id: str
     quantity: int
 
 
 @dataclass
-class BookBasisFeedbackSeedSpec:
+class WorkFeedbackSeedSpec:
     """Один клиент — один отзыв на книгу (см. unique в модели)."""
 
-    book_basis_id: str
+    work_id: str
     client_email: str
     score: int
     comment: str | None = None
@@ -315,167 +316,182 @@ AUTHORS: list[AuthorSpec] = [
     AuthorSpec(id=AUTH_HUGO_ID, name="Виктор Гюго"),
 ]
 
-BOOK_BASES: list[BookBasisSpec] = [
-    BookBasisSpec(
+WORKS: list[WorkSpec] = [
+    WorkSpec(
         id=BB_WAR_PEACE_ID,
         title="Война и мир",
         author_ids=[AUTH_TOLSTOY_ID],
+        category="book",
         publisher="Эксмо",
         created_year=1869,
         description="Роман-эпопея",
-        genre_id=G_GENRE_RUSSIAN_ID,
+        genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_CRIME_PUNISHMENT_ID,
         title="Преступление и наказание",
         author_ids=[AUTH_DOSTOEVSKY_ID],
+        category="book",
         publisher="АСТ",
         created_year=1866,
         description="",
-        genre_id=G_GENRE_RUSSIAN_ID,
+        genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_MASTER_MARGARITA_ID,
         title="Мастер и Маргарита",
         author_ids=[AUTH_BULGAKOV_ID],
+        category="book",
         publisher="АСТ",
         created_year=1967,
         description="",
-        genre_id=G_GENRE_RUSSIAN_ID,
+        genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_PRIDE_PREJUDICE_ID,
         title="Гордость и предубеждение",
         author_ids=[AUTH_AUSTEN_ID],
+        category="book",
         publisher="Penguin",
         created_year=1813,
         description="",
-        genre_id=G_GENRE_WORLD_ID,
+        genre_ids=[G_GENRE_WORLD_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_1984_ID,
         title="1984",
         author_ids=[AUTH_ORWELL_ID],
+        category="book",
         publisher="ACT",
         created_year=1949,
         description="",
-        genre_id=G_GENRE_WORLD_ID,
+        genre_ids=[G_GENRE_WORLD_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_ANNA_KARENINA_ID,
         title="Анна Каренина",
         author_ids=[AUTH_TOLSTOY_ID],
+        category="book",
         publisher="Эксмо",
         created_year=1877,
         description="Роман о любви, выборе и последствиях.",
-        genre_id=G_GENRE_ROMANCE_ID,
+        genre_ids=[G_GENRE_ROMANCE_ID],
         online_version_link="https://example.com/anna-karenina",
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_IDIOT_ID,
         title="Идиот",
         author_ids=[AUTH_DOSTOEVSKY_ID],
+        category="book",
         publisher="АСТ",
         created_year=1869,
         description="",
-        genre_id=G_GENRE_RUSSIAN_ID,
+        genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_FATHERS_SONS_ID,
         title="Отцы и дети",
         author_ids=[AUTH_TURGENEV_ID],
+        category="book",
         publisher="Азбука",
         created_year=1862,
         description="",
-        genre_id=G_GENRE_ROMANCE_ID,
+        genre_ids=[G_GENRE_ROMANCE_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_THREE_COMRADES_ID,
         title="Три товарища",
         author_ids=[AUTH_REMARQUE_ID],
+        category="book",
         publisher="Азбука",
         created_year=1936,
         description="",
-        genre_id=G_GENRE_ROMANCE_ID,
+        genre_ids=[G_GENRE_ROMANCE_ID],
         online_version_link="https://example.com/three-comrades",
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_DOG_HEART_ID,
         title="Собачье сердце",
         author_ids=[AUTH_BULGAKOV_ID],
+        category="book",
         publisher="АСТ",
         created_year=1925,
         description="",
-        genre_id=G_GENRE_RUSSIAN_ID,
+        genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_ORIENT_EXPRESS_ID,
         title="Убийство в «Восточном экспрессе»",
         author_ids=[AUTH_CHRISTIE_ID],
+        category="book",
         publisher="Эксмо",
         created_year=1934,
         description="Классический детектив с закрытым кругом подозреваемых.",
-        genre_id=G_GENRE_DETECTIVE_ID,
+        genre_ids=[G_GENRE_DETECTIVE_ID],
         online_version_link="https://example.com/orient-express",
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_AND_THERE_NONE_ID,
         title="И никого не стало",
         author_ids=[AUTH_CHRISTIE_ID],
+        category="book",
         publisher="Эксмо",
         created_year=1939,
         description="",
-        genre_id=G_GENRE_DETECTIVE_ID,
+        genre_ids=[G_GENRE_DETECTIVE_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_DA_VINCI_CODE_ID,
         title="Код да Винчи",
         author_ids=[AUTH_BROWN_ID],
+        category="book",
         publisher="ACT",
         created_year=2003,
         description="",
-        genre_id=G_GENRE_THRILLER_ID,
+        genre_ids=[G_GENRE_THRILLER_ID],
         online_version_link="https://example.com/da-vinci-code",
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_GONE_GIRL_ID,
         title="Исчезнувшая",
         author_ids=[AUTH_FLYNN_ID],
+        category="book",
         publisher="АСТ",
         created_year=2012,
         description="",
-        genre_id=G_GENRE_THRILLER_ID,
+        genre_ids=[G_GENRE_THRILLER_ID],
     ),
-    BookBasisSpec(
+    WorkSpec(
         id=BB_DRAGON_TATTOO_ID,
         title="Девушка с татуировкой дракона",
         author_ids=[AUTH_LARSSON_ID],
+        category="book",
         publisher="Эксмо",
         created_year=2005,
         description="",
-        genre_id=G_GENRE_THRILLER_ID,
+        genre_ids=[G_GENRE_THRILLER_ID],
     ),
 ]
 
-BOOK_INSTANCES: list[BookInstanceSpec] = [
-    BookInstanceSpec(
+WORK_ITEMS: list[WorkItemSpec] = [
+    WorkItemSpec(
         id=_BOOK_INSTANCE_IDS[i * len(LIBRARY_BRANCHES) + j],
-        book_basis_id=bb.id,
+        work_id=w.id,
         library_id=lb.id,
     )
-    for i, bb in enumerate(BOOK_BASES)
+    for i, w in enumerate(WORKS)
     for j, lb in enumerate(LIBRARY_BRANCHES)
 ]
 
 INVENTORY_IN: list[InventoryMovementInSpec] = [
     InventoryMovementInSpec(
         id=_INVENTORY_MOVEMENT_IDS[i * len(LIBRARY_BRANCHES) + j],
-        book_basis_id=bb.id,
+        work_id=w.id,
         library_id=lb.id,
         supplier_id=SUPPLIERS[(i + j) % 2].id,
         quantity=5 + (i + j) % 4,
     )
-    for i, bb in enumerate(BOOK_BASES)
+    for i, w in enumerate(WORKS)
     for j, lb in enumerate(LIBRARY_BRANCHES)
 ]
 
@@ -485,69 +501,69 @@ CLIENT_USER = ClientUserSpec(
     last_name="Клиентов",
 )
 
-BOOK_BASIS_FEEDBACKS: list[BookBasisFeedbackSeedSpec] = [
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_WAR_PEACE_ID,
+WORK_FEEDBACKS: list[WorkFeedbackSeedSpec] = [
+    WorkFeedbackSeedSpec(
+        work_id=BB_WAR_PEACE_ID,
         client_email=CLIENT_USER.email,
         score=5,
         comment="Очень сильное произведение, читал не спеша — рекомендую.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_1984_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_1984_ID,
         client_email=CLIENT_USER.email,
         score=4,
         comment="Актуально и по сей день, атмосфера давит в хорошем смысле.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_MASTER_MARGARITA_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_MASTER_MARGARITA_ID,
         client_email=CLIENT_USER.email,
         score=5,
         comment="Перечитываю раз в пару лет — каждый раз замечаю новые детали.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_CRIME_PUNISHMENT_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_CRIME_PUNISHMENT_ID,
         client_email=CLIENT_USER.email,
         score=4,
         comment="Тяжело, но очень мощно. Хорошо раскрыта психология.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_PRIDE_PREJUDICE_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_PRIDE_PREJUDICE_ID,
         client_email=CLIENT_USER.email,
         score=5,
         comment="Лёгкий и ироничный роман, отличный перевод.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_ORIENT_EXPRESS_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_ORIENT_EXPRESS_ID,
         client_email=CLIENT_USER.email,
         score=5,
         comment="Очень люблю такие детективы — финал не ожидал.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_AND_THERE_NONE_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_AND_THERE_NONE_ID,
         client_email=CLIENT_USER.email,
         score=4,
         comment="Держит напряжение до последней главы.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_DA_VINCI_CODE_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_DA_VINCI_CODE_ID,
         client_email=CLIENT_USER.email,
         score=3,
         comment="Динамично, но местами слишком киношно.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_GONE_GIRL_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_GONE_GIRL_ID,
         client_email=CLIENT_USER.email,
         score=5,
         comment="Впечатлило. Повороты сюжета — огонь.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_THREE_COMRADES_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_THREE_COMRADES_ID,
         client_email=CLIENT_USER.email,
         score=5,
         comment="Очень трогательно. Пронзительная атмосфера.",
     ),
-    BookBasisFeedbackSeedSpec(
-        book_basis_id=BB_ANNA_KARENINA_ID,
+    WorkFeedbackSeedSpec(
+        work_id=BB_ANNA_KARENINA_ID,
         client_email=CLIENT_USER.email,
         score=4,
         comment="Классика, но читается удивительно современно.",

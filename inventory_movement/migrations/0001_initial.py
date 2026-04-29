@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('books_model', '0002_alter_book_id_alter_bookbasis_id'),
+        ('works', '0009_rename_book_models_to_work'),
         ('library', '0002_alter_librarybranch_id'),
         ('suppliers', '0001_initial'),
     ]
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('reason', models.CharField(blank=True, max_length=255)),
                 ('comment', models.TextField(blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('book_basis', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='book_basis', to='books_model.bookbasis')),
+                ('work', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='inventory_movements', to='works.work')),
                 ('library_branch', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='library_branch', to='library.librarybranch')),
                 ('supplier', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='supplier', to='suppliers.supplier')),
             ],

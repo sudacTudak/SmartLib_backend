@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('books_model', '0004_alter_bookbasis_id_alter_genre_id'),
+        ('works', '0009_rename_book_models_to_work'),
         ('library', '0002_alter_librarybranch_id'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -25,13 +25,13 @@ class Migration(migrations.Migration):
                 ('comment', models.TextField(blank=True, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('book_basis', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='feedbacks', to='books_model.bookbasis')),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='book_basis_feedbacks', to=settings.AUTH_USER_MODEL)),
+                ('work', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='feedbacks', to='works.work')),
+                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='work_feedbacks', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'db_table': 'book_basis_feedback',
                 'ordering': ('-created_at',),
-                'constraints': [models.UniqueConstraint(fields=('book_basis', 'client'), name='uniq_book_basis_feedback_per_client')],
+                'constraints': [models.UniqueConstraint(fields=('work', 'client'), name='uniq_book_basis_feedback_per_client')],
             },
         ),
         migrations.CreateModel(

@@ -7,7 +7,7 @@ from library.serializers import LibraryBranchSerializer
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, CreateModelMixin, UpdateModelMixin
 from typing import cast
 from django.db import transaction
-from books_model.models import Book, BookBasis
+from works.models import WorkItem, Work
 
 
 class LibraryBranchViewSet(ViewSetBase[QuerySet[LibraryBranch]], RetrieveModelMixin, ListModelMixin, CreateModelMixin,
@@ -34,8 +34,8 @@ class LibraryBranchViewSet(ViewSetBase[QuerySet[LibraryBranch]], RetrieveModelMi
 
         with transaction.atomic():
             library_branch = cast(LibraryBranch, serializer.save())
-            book_bases_qs = BookBasis.objects.all()
+            works_qs = Work.objects.all()
 
-            Book.objects.bulk_create(
-                Book(library_branch=library_branch, book_basis=basis, available_count=0, total_count=0) for basis in
-                book_bases_qs)
+            WorkItem.objects.bulk_create(
+                WorkItem(library_branch=library_branch, work=work, available_count=0, total_count=0) for work in
+                works_qs)

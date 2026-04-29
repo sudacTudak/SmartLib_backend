@@ -11,8 +11,8 @@ from django.db import transaction
 from amenity.models import Amenity
 from amenity.models.amenity_vendor.model import AmenityVendor
 from authors.models import Author
-from books_model.models import Book, BookBasis, Genre
-from feedback.models import BookBasisFeedback, LibraryBranchFeedback
+from works.models import WorkItem, Work, Genre
+from feedback.models import WorkFeedback, LibraryBranchFeedback
 from db_core.seed_demo import data as seed_data
 from inventory_movement.enums import InventoryMovementType
 from inventory_movement.models import InventoryMovement
@@ -31,7 +31,7 @@ def _validate_demo_config() -> None:
     position_ids = {p.id for p in seed_data.STAFF_POSITIONS}
     genre_ids = {g.id for g in seed_data.GENRES}
     author_ids = {a.id for a in seed_data.AUTHORS}
-    book_basis_ids = {bb.id for bb in seed_data.BOOK_BASES}
+    work_ids = {w.id for w in seed_data.WORKS}
     vendor_ids = {v.id for v in seed_data.AMENITY_VENDORS}
     supplier_ids = {s.id for s in seed_data.SUPPLIERS}
 
@@ -44,20 +44,25 @@ def _validate_demo_config() -> None:
         if spec.position_id not in position_ids:
             raise ValueError(f"Неизвестный position_id у пользователя {spec.email!r}")
 
-    for bb in seed_data.BOOK_BASES:
-        if bb.genre_id not in genre_ids:
-            raise ValueError(f"Неизвестный genre_id у BookBasis id={bb.id}")
-        if not bb.author_ids:
-            raise ValueError(f"Пустой author_ids у BookBasis id={bb.id}")
-        for aid in bb.author_ids:
+    for w in seed_data.WORKS:
+        if not w.genre_ids:
+            raise ValueError(f"Пустой genre_ids у Work id={w.id}")
+        for gid in w.genre_ids:
+            if gid not in genre_ids:
+                raise ValueError(f"Неизвестный genre_id {gid!r} у Work id={w.id}")
+        if w.category is None:
+            raise ValueError(f"Не указан category у Work id={w.id}")
+        if not w.author_ids:
+            raise ValueError(f"Пустой author_ids у Work id={w.id}")
+        for aid in w.author_ids:
             if aid not in author_ids:
-                raise ValueError(f"Неизвестный author_id {aid!r} у BookBasis id={bb.id}")
+                raise ValueError(f"Неизвестный author_id {aid!r} у Work id={w.id}")
 
-    for fb in seed_data.BOOK_BASIS_FEEDBACKS:
-        if fb.book_basis_id not in book_basis_ids:
-            raise ValueError(f"Неизвестный book_basis_id в BOOK_BASIS_FEEDBACKS: {fb.book_basis_id}")
+    for fb in seed_data.WORK_FEEDBACKS:
+        if fb.work_id not in work_ids:
+            raise ValueError(f"Неизвестный work_id в WORK_FEEDBACKS: {fb.work_id}")
         if fb.client_email != seed_data.CLIENT_USER.email:
-            raise ValueError(f"Неизвестный client_email в BOOK_BASIS_FEEDBACKS: {fb.client_email!r}")
+            raise ValueError(f"Неизвестный client_email в WORK_FEEDBACKS: {fb.client_email!r}")
 
     for lf in seed_data.LIBRARY_BRANCH_FEEDBACKS:
         if lf.library_branch_id not in library_ids:
@@ -70,8 +75,8 @@ def _validate_demo_config() -> None:
         if row.id in inv_movement_ids:
             raise ValueError(f"Дублирующийся id поступления в INVENTORY_IN: {row.id}")
         inv_movement_ids.add(row.id)
-        if row.book_basis_id not in book_basis_ids:
-            raise ValueError(f"Неизвестный book_basis_id в INVENTORY_IN: {row.book_basis_id}")
+        if row.work_id not in work_ids:
+            raise ValueError(f"Неизвестный work_id в INVENTORY_IN: {row.work_id}")
         if row.library_id not in library_ids:
             raise ValueError("Неизвестный library_id в INVENTORY_IN")
         if row.supplier_id not in supplier_ids:
@@ -91,11 +96,11 @@ def _validate_demo_config() -> None:
         raise ValueError("Должен быть хотя бы один AMENITY_VENDORS")
 
     book_instance_ids: set[str] = set()
-    for bi in seed_data.BOOK_INSTANCES:
-        if bi.book_basis_id not in book_basis_ids:
-            raise ValueError(f"Неизвестный book_basis_id в BOOK_INSTANCES: {bi.book_basis_id}")
+    for bi in seed_data.WORK_ITEMS:
+        if bi.work_id not in work_ids:
+            raise ValueError(f"Неизвестный work_id в WORK_ITEMS: {bi.work_id}")
         if bi.library_id not in library_ids:
-            raise ValueError("Неизвестный library_id в BOOK_INSTANCES")
+            raise ValueError("Неизвестный library_id в WORK_ITEMS")
         if bi.id in book_instance_ids:
             raise ValueError(f"Дублирующийся id книги (экземпляр): {bi.id}")
         book_instance_ids.add(bi.id)
@@ -178,31 +183,32 @@ def run_seed_demo(
             a = Author.objects.create(id=aid, name=row.name)
         authors_by_id[row.id] = a
 
-    book_bases_by_id: dict[str, BookBasis] = {}
-    for row in seed_data.BOOK_BASES:
-        bid = uuid.UUID(row.id)
-        bb = BookBasis.objects.filter(pk=bid).first()
-        if bb is None:
-            bb = BookBasis.objects.create(
-                id=bid,
+    works_by_id: dict[str, Work] = {}
+    for row in seed_data.WORKS:
+        wid = uuid.UUID(row.id)
+        w = Work.objects.filter(pk=wid).first()
+        if w is None:
+            w = Work.objects.create(
+                id=wid,
                 title=row.title,
+                category=str(row.category),
                 publisher=row.publisher,
                 created_year=row.created_year,
                 description=row.description,
-                genre=genres_by_id[row.genre_id],
                 online_version_link=row.online_version_link,
             )
-            bb.authors.set(authors_by_id[aid] for aid in row.author_ids)
-        book_bases_by_id[row.id] = bb
+            w.authors.set(authors_by_id[aid] for aid in row.author_ids)
+            w.genres.set(genres_by_id[gid] for gid in row.genre_ids)
+        works_by_id[row.id] = w
 
-    for spec in seed_data.BOOK_INSTANCES:
-        book_pk = uuid.UUID(spec.id)
-        if Book.objects.filter(pk=book_pk).exists():
+    for spec in seed_data.WORK_ITEMS:
+        work_item_pk = uuid.UUID(spec.id)
+        if WorkItem.objects.filter(pk=work_item_pk).exists():
             continue
-        Book.objects.create(
-            id=book_pk,
+        WorkItem.objects.create(
+            id=work_item_pk,
             library_branch=branches_by_id[spec.library_id],
-            book_basis=book_bases_by_id[spec.book_basis_id],
+            work=works_by_id[spec.work_id],
             total_count=0,
             available_count=0,
         )
@@ -211,7 +217,7 @@ def run_seed_demo(
         mid = uuid.UUID(row.id)
         if InventoryMovement.objects.filter(pk=mid).exists():
             continue
-        basis = book_bases_by_id[row.book_basis_id]
+        basis = works_by_id[row.work_id]
         br = branches_by_id[row.library_id]
         supplier = suppliers_by_id[row.supplier_id]
         qty = row.quantity
@@ -219,13 +225,13 @@ def run_seed_demo(
             id=mid,
             type=InventoryMovementType.In.value,
             library_branch=br,
-            book_basis=basis,
+            work=basis,
             supplier=supplier,
             quantity=qty,
             reason="",
             comment="Демо-поступление (seed_demo)",
         )
-        book = Book.objects.get(book_basis=basis, library_branch=br)
+        book = WorkItem.objects.get(work=basis, library_branch=br)
         book.total_count = qty
         book.available_count = qty
         book.save()
@@ -241,11 +247,11 @@ def run_seed_demo(
         )
 
     client_demo = CustomUser.objects.get(email=seed_data.CLIENT_USER.email)
-    for spec in seed_data.BOOK_BASIS_FEEDBACKS:
-        if BookBasisFeedback.objects.filter(book_basis_id=uuid.UUID(spec.book_basis_id), client=client_demo).exists():
+    for spec in seed_data.WORK_FEEDBACKS:
+        if WorkFeedback.objects.filter(work_id=uuid.UUID(spec.work_id), client=client_demo).exists():
             continue
-        BookBasisFeedback.objects.create(
-            book_basis=book_bases_by_id[spec.book_basis_id],
+        WorkFeedback.objects.create(
+            work=works_by_id[spec.work_id],
             client=client_demo,
             score=spec.score,
             comment=spec.comment,

@@ -24,14 +24,14 @@ from .constants import API_PATH_PREFIX
 urlpatterns = [
     path(fr'{API_PATH_PREFIX}/django-admin/', admin.site.urls),
     path(fr'{API_PATH_PREFIX}/authors/', include('authors.urls')),
-    path(fr'{API_PATH_PREFIX}/books/', include('books_model.urls')),
+    path(fr'{API_PATH_PREFIX}/works/', include('works.urls')),
     path(fr'{API_PATH_PREFIX}/libs/', include('library.urls')),
     path(fr'{API_PATH_PREFIX}/users/', include('users.urls')),
     path(fr'{API_PATH_PREFIX}/positions/', include('positions.urls')),
     path(fr'{API_PATH_PREFIX}/inventory/', include('inventory_movement.urls')),
     path(fr'{API_PATH_PREFIX}/suppliers/', include('suppliers.urls')),
     path(fr'{API_PATH_PREFIX}/amenities/', include('amenity.urls')),
-    path(fr'{API_PATH_PREFIX}/book-loans/', include('book_loan.urls')),
+    path(fr'{API_PATH_PREFIX}/work-loans/', include('work_loan.urls')),
     path(fr'{API_PATH_PREFIX}/feedback/', include('feedback.urls')),
 ]
 

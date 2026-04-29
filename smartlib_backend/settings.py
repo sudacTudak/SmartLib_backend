@@ -50,14 +50,14 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
     'authors.apps.AuthorsConfig',
-    'books_model.apps.BooksModelConfig',
+    'works.apps.WorksConfig',
     'library.apps.LibraryConfig',
     'users.apps.UsersConfig',
     'positions.apps.PositionsConfig',
     'suppliers.apps.SuppliersConfig',
     'inventory_movement.apps.InventoryMovementConfig',
     'amenity.apps.AmenityConfig',
-    'book_loan.apps.BookLoanConfig',
+    'work_loan.apps.WorkLoanConfig',
     'feedback.apps.FeedbackConfig',
 ]
 

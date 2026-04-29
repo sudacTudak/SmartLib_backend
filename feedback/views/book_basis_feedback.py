@@ -11,28 +11,28 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 
 from common_core.classes import ViewSetBase
-from feedback.models import BookBasisFeedback
+from feedback.models import WorkFeedback
 from feedback.permissions import IsStaffOrFeedbackOwner
-from feedback.query_params import BookBasisByUserQueryParams
-from feedback.serializers import BookBasisFeedbackSerializer
+from feedback.query_params import WorkByUserQueryParams
+from feedback.serializers import WorkFeedbackSerializer
 from http_core import HTTPResponse
 from users.permissions import IsStaff
 
-__all__ = ['BookBasisFeedbackViewSet']
+__all__ = ['WorkFeedbackViewSet']
 
 
-class BookBasisFeedbackViewSet(
-    ViewSetBase[QuerySet[BookBasisFeedback]],
+class WorkFeedbackViewSet(
+    ViewSetBase[QuerySet[WorkFeedback]],
     ListModelMixin,
     CreateModelMixin,
     UpdateModelMixin,
     DestroyModelMixin,
 ):
-    serializer_class = BookBasisFeedbackSerializer
+    serializer_class = WorkFeedbackSerializer
 
     def get_query_params_model_class(self):
         if self.action in ('list', 'by_user'):
-            return BookBasisByUserQueryParams
+            return WorkByUserQueryParams
         return None
 
     def get_permissions(self):
@@ -47,18 +47,18 @@ class BookBasisFeedbackViewSet(
 
         return [IsAuthenticated()]
 
-    def get_queryset(self) -> QuerySet[BookBasisFeedback]:
+    def get_queryset(self) -> QuerySet[WorkFeedback]:
         if self.action in ('list', 'by_user'):
-            params = cast(BookBasisByUserQueryParams | None, self.get_processed_query_params())
-            qs = BookBasisFeedback.objects.all().select_related('book_basis', 'client')
-            if params is not None and params.book_basis_id is not None:
-                qs = qs.filter(book_basis_id=str(params.book_basis_id))
+            params = cast(WorkByUserQueryParams | None, self.get_processed_query_params())
+            qs = WorkFeedback.objects.all().select_related('work', 'client')
+            if params is not None and params.work_id is not None:
+                qs = qs.filter(work_id=str(params.work_id))
             return qs
 
         if self.action in ('create', 'partial_update', 'destroy'):
-            return BookBasisFeedback.objects.all().select_related('book_basis', 'client')
+            return WorkFeedback.objects.all().select_related('work', 'client')
 
-        return BookBasisFeedback.objects.none()
+        return WorkFeedback.objects.none()
 
     def perform_create(self, serializer):
         try:

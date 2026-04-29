@@ -5,7 +5,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from uuid import uuid4 as uuid
 
-from books_model.models import BookBasis
+from works.models import Work
 from inventory_movement.enums import InventoryMovementType
 from inventory_movement.manager import InventoryMovementManager
 from library.models import LibraryBranch
@@ -17,8 +17,8 @@ class InventoryMovement(models.Model):
     type = models.CharField(choices=InventoryMovementType.as_django_model_choices(), max_length=3)
     library_branch = models.ForeignKey(LibraryBranch, on_delete=models.PROTECT, related_name='library_branch')
     library_branch_id: str
-    book_basis = models.ForeignKey(BookBasis, on_delete=models.PROTECT, related_name='book_basis')
-    book_basis_id: str
+    work = models.ForeignKey(Work, on_delete=models.PROTECT, related_name='inventory_movements')
+    work_id: str
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name='supplier', null=True, blank=True)
     supplier_id: str
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
