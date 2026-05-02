@@ -8,6 +8,7 @@ __all__ = ['WorkItemByLibrarySerializer']
 
 class WorkItemByLibrarySerializer(ModelSerializer):
     library_branch_id = PrimaryKeyRelatedField(source='library_branch', read_only=True)
+    work_id = PrimaryKeyRelatedField(source='work', read_only=True)
     category = serializers.CharField(source='work.category', read_only=True)
     genre_ids = serializers.SerializerMethodField()
     author_ids = serializers.SerializerMethodField()
@@ -23,6 +24,7 @@ class WorkItemByLibrarySerializer(ModelSerializer):
         fields = (
             'id',
             'library_branch_id',
+            'work_id',
             'category',
             'genre_ids',
             'title',
@@ -38,6 +40,7 @@ class WorkItemByLibrarySerializer(ModelSerializer):
         )
         read_only_fields = (
             'id',
+            'work_id',
             'category',
             'title',
             'genre_ids',
