@@ -189,6 +189,16 @@ class AuthorSpec:
     name: str
 
 
+# Демо-обложка: один PNG 300×430 в `works/<work_id>/preview/` (команда `generate_demo_work_covers`).
+# Пропорции близки к типичной сетке (~190×220) и достаточны для более крупного показа; фронт масштабирует через CSS.
+WORK_DEMO_COVER_FILENAME = "demo_cover.png"
+
+
+def work_demo_preview_relative_path(work_id: str) -> str:
+    """Относительный путь внутри ``MEDIA_ROOT`` до единственного файла превью."""
+    return f"works/{work_id}/preview/{WORK_DEMO_COVER_FILENAME}"
+
+
 @dataclass
 class WorkSpec:
     id: str
@@ -197,6 +207,7 @@ class WorkSpec:
     category: str
     publisher: str
     created_year: int
+    volume: int
     genre_ids: list[str]
     description: str
     online_version_link: str | None = None
@@ -324,6 +335,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Эксмо",
         created_year=1869,
+        volume=1360,
         description="Роман-эпопея",
         genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
@@ -334,6 +346,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="АСТ",
         created_year=1866,
+        volume=640,
         description="",
         genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
@@ -344,6 +357,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="АСТ",
         created_year=1967,
+        volume=512,
         description="",
         genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
@@ -354,6 +368,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Penguin",
         created_year=1813,
+        volume=432,
         description="",
         genre_ids=[G_GENRE_WORLD_ID],
     ),
@@ -364,6 +379,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="ACT",
         created_year=1949,
+        volume=320,
         description="",
         genre_ids=[G_GENRE_WORLD_ID],
     ),
@@ -374,6 +390,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Эксмо",
         created_year=1877,
+        volume=864,
         description="Роман о любви, выборе и последствиях.",
         genre_ids=[G_GENRE_ROMANCE_ID],
         online_version_link="https://example.com/anna-karenina",
@@ -385,6 +402,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="АСТ",
         created_year=1869,
+        volume=688,
         description="",
         genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
@@ -395,6 +413,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Азбука",
         created_year=1862,
+        volume=272,
         description="",
         genre_ids=[G_GENRE_ROMANCE_ID],
     ),
@@ -405,6 +424,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Азбука",
         created_year=1936,
+        volume=416,
         description="",
         genre_ids=[G_GENRE_ROMANCE_ID],
         online_version_link="https://example.com/three-comrades",
@@ -416,6 +436,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="АСТ",
         created_year=1925,
+        volume=128,
         description="",
         genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
@@ -426,6 +447,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Эксмо",
         created_year=1934,
+        volume=288,
         description="Классический детектив с закрытым кругом подозреваемых.",
         genre_ids=[G_GENRE_DETECTIVE_ID],
         online_version_link="https://example.com/orient-express",
@@ -437,6 +459,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Эксмо",
         created_year=1939,
+        volume=320,
         description="",
         genre_ids=[G_GENRE_DETECTIVE_ID],
     ),
@@ -447,6 +470,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="ACT",
         created_year=2003,
+        volume=624,
         description="",
         genre_ids=[G_GENRE_THRILLER_ID],
         online_version_link="https://example.com/da-vinci-code",
@@ -458,6 +482,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="АСТ",
         created_year=2012,
+        volume=472,
         description="",
         genre_ids=[G_GENRE_THRILLER_ID],
     ),
@@ -468,6 +493,7 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Эксмо",
         created_year=2005,
+        volume=672,
         description="",
         genre_ids=[G_GENRE_THRILLER_ID],
     ),

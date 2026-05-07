@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from users.enums import UserRole
 from users.models import CustomUser
 from .base import BaseAuthSerializer
 
@@ -19,4 +20,5 @@ class RegisterUserSerializer(BaseAuthSerializer, serializers.ModelSerializer):
         pass
 
     def create(self, validated_data):
+        validated_data['role'] = UserRole.Client.value
         return CustomUser.objects.create_user(**validated_data)

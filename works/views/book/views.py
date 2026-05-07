@@ -39,10 +39,10 @@ class WorkItemViewSet(ViewSetBase[QuerySet[WorkItem]], RetrieveModelMixin):
         return qs
 
     def get_query_params_model_class(self) -> type[BaseModel] | None:
-        if self.action == 'by-work':
+        if self.action == 'by_work':
             return ListByWorkQueryParams
 
-        if self.action == 'availability-by-work':
+        if self.action == 'availability_by_work':
             return AvailabilityInfoByWorkQueryParams
 
         return None
@@ -86,6 +86,7 @@ class WorkItemViewSet(ViewSetBase[QuerySet[WorkItem]], RetrieveModelMixin):
     @action(url_path='availability-by-work', detail=False, methods=[HTTPMethod.GET])
     def availability_by_work(self, request: Request, *_args, **_kwargs):
         params = cast(AvailabilityInfoByWorkQueryParams | None, self.get_processed_query_params())
+        print('params: ', params)
         if params is None or params.work_id is None:
             return HTTPResponse.failure(
                 message='Не указан идентификатор произведения (workId)',

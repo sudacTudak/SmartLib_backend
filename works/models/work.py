@@ -23,6 +23,7 @@ class Work(models.Model):
     )
     publisher = models.CharField(max_length=WorkFieldsMeta['PUBLISHER_MAX_LENGTH'])
     created_year = models.PositiveIntegerField()
+    volume = models.PositiveIntegerField(default=1, verbose_name='Объём (страниц)')
     genres = models.ManyToManyField('works.Genre', related_name='works', blank=True)
     online_version_link = models.TextField(blank=True, null=True)
     preview_link = models.ImageField(upload_to=WorkPreviewUploadPath(), blank=True, null=True)

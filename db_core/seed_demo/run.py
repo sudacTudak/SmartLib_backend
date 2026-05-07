@@ -54,6 +54,8 @@ def _validate_demo_config() -> None:
             raise ValueError(f"Не указан category у Work id={w.id}")
         if not w.author_ids:
             raise ValueError(f"Пустой author_ids у Work id={w.id}")
+        if w.volume < 1:
+            raise ValueError(f"Недопустимый volume (<1) у Work id={w.id}")
         for aid in w.author_ids:
             if aid not in author_ids:
                 raise ValueError(f"Неизвестный author_id {aid!r} у Work id={w.id}")
@@ -194,6 +196,7 @@ def run_seed_demo(
                 category=str(row.category),
                 publisher=row.publisher,
                 created_year=row.created_year,
+                volume=row.volume,
                 description=row.description,
                 online_version_link=row.online_version_link,
             )

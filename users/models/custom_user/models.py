@@ -8,7 +8,7 @@ from users.enums import UserRole, Gender
 from .manager import CustomUserManager
 from users.models.permissions import CustomPermissionsMixin
 from uuid import uuid4 as uuid
-from typing import cast, TYPE_CHECKING
+from typing import Optional, cast, TYPE_CHECKING
 from .constants import MAX_EMAIL_LENGTH
 
 __all__ = ['CustomUser']
@@ -46,9 +46,10 @@ class CustomUser(AbstractBaseUser, CustomPermissionsMixin):
     objects = CustomUserManager()
 
     if TYPE_CHECKING:
-        from users.models import StaffProfile
+        from users.models import StaffProfile, UserProfile
 
         staff_profile: StaffProfile
+        user_profile: Optional[UserProfile]
 
     class Meta:
         db_table = 'custom_user'

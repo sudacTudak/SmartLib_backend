@@ -1,11 +1,24 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import transaction
+
+from users.enums import UserRole
+
 from .queryset import CustomUserQuerySet
 
 __all__ = ['CustomUserManager']
 
 
 class CustomUserManager(BaseUserManager.from_queryset(CustomUserQuerySet)):
+    def ensure_client_profile(self, user):
+        """Создаёт UserProfile, если пользователь — клиент; иначе ValueError."""
+
+        from users.models import UserProfile
+
+        if UserRole(user.role) != UserRole.Client:
+            raise ValueError('Профиль пользователя доступен только для роли client')
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        return profile
+
     def _create_user(self, *, email, password, **extra_fields):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
@@ -17,7 +30,10 @@ class CustomUserManager(BaseUserManager.from_queryset(CustomUserQuerySet)):
         if not email:
             raise ValueError('Email is required')
 
-        return self._create_user(email=email, password=password, **extra_fields)
+        user = self._create_user(email=email, password=password, **extra_fields)
+        if UserRole(user.role) == UserRole.Client:
+            self.ensure_client_profile(user)
+        return user
 
     @transaction.atomic
     def create_staff(self, *, email, password, profile_data, **extra_fields):

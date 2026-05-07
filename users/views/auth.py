@@ -15,6 +15,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.serializers import (
     ChangePasswordSerializer,
+    GetUserPublicSerializer,
     LoginSerializer,
     LogoutSerializer,
     RegisterUserSerializer,
@@ -51,8 +52,9 @@ class AuthViewSet(ViewSetBase[CustomUserQuerySet]):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        serializer.save()
-        return HTTPResponse.success(status_code=status.HTTP_201_CREATED)
+        user = serializer.save()
+        payload = GetUserPublicSerializer(user, context={'request': request}).data
+        return HTTPResponse.success(data=payload, status_code=status.HTTP_201_CREATED)
 
     @action(url_path='login', detail=False, methods=['POST'])
     def login(self, request: Request):

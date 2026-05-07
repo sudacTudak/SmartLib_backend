@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'amenity.apps.AmenityConfig',
     'work_loan.apps.WorkLoanConfig',
     'feedback.apps.FeedbackConfig',
+    'reports.apps.ReportsConfig',
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -167,7 +168,10 @@ STATIC_URL = 'static/'
 # User uploads (book/library previews, etc.)
 # Stored on disk; served via nginx in production (Django can serve only in DEBUG).
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/smartlib-assets/'
+# Локально по умолчанию — каталог внутри проекта (запись без root). В проде задайте DJANGO_MEDIA_ROOT,
+# например /smartlib-assets/ и смонтируйте том с правами на запись.
+_media_root_override = os.environ.get('DJANGO_MEDIA_ROOT', '').strip()
+MEDIA_ROOT = Path(_media_root_override or (BASE_DIR / 'media')).resolve()
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

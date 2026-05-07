@@ -40,6 +40,7 @@ class WorkSerializer(AbsoluteMediaUrlMixin, serializers.ModelSerializer):
             'category',
             'publisher',
             'created_year',
+            'volume',
             'genre_ids',
             'online_version_link',
             'preview_link',
