@@ -335,8 +335,8 @@ WORKS: list[WorkSpec] = [
         category="book",
         publisher="Эксмо",
         created_year=1869,
-        volume=1360,
-        description="Роман-эпопея",
+        volume=1926,
+        description="Главный русский роман – для России и всего человечества. Всеохватная военная эпопея, подробная и проницательная семейная хроника, историософский трактат – все это в одной (очень большой) книге.",
         genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
     WorkSpec(
@@ -347,8 +347,8 @@ WORKS: list[WorkSpec] = [
         publisher="АСТ",
         created_year=1866,
         volume=640,
-        description="",
-        genre_ids=[G_GENRE_RUSSIAN_ID],
+        description="Гениальный роман, главные темы которого: преступление и наказание, жертвенность и любовь, свобода и гордость человека – обрамлены почти детективным сюжетом. Многократно экранизированный и не раз поставленный на сцене, он и по сей день читается на одном дыхании.",
+        genre_ids = [G_GENRE_RUSSIAN_ID],
     ),
     WorkSpec(
         id=BB_MASTER_MARGARITA_ID,

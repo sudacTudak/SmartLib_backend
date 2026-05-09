@@ -87,10 +87,31 @@ class WorkViewSet(
                 )
             if self.action == 'list':
                 params = cast(WorkListQueryParams | None, self.get_processed_query_params())
-                if params is not None and params.only_available is True:
-                    qs = qs.filter(books_available_total__gt=0)
-                if params is not None and params.category is not None:
-                    qs = qs.filter(category=str(params.category))
+                if params is not None:
+                    if branches := params.library_branches:
+                        qs = qs.filter(work_items__library_branch_id__in=branches).distinct()
+                    if (category := params.category) is not None:
+                        qs = qs.filter(category=category)
+                    if params.search and (term := params.search.strip()):
+                        qs = qs.filter(
+                            Q(title__icontains=term)
+                            | Q(description__icontains=term)
+                            | Q(authors__name__icontains=term),
+                        ).distinct()
+                    if authors := params.authors:
+                        qs = qs.filter(authors__id__in=authors).distinct()
+                    if genres := params.genres:
+                        qs = qs.filter(genres__id__in=genres).distinct()
+                    if params.has_online_version:
+                        qs = qs.exclude(Q(online_version_link__isnull=True) | Q(online_version_link=''))
+                    if params.only_available:
+                        qs = qs.filter(books_available_total__gt=0)
+
+                if params is not None and params.popular:
+                    qs = qs.order_by('-rating_avg', '-rating_count', '-created_at')
+                else:
+                    qs = qs.order_by('-created_at')
+
         return qs
 
     def get_permissions(self):
