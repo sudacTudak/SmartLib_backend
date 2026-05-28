@@ -17,7 +17,7 @@ class WorkItemByLibrarySerializer(ModelSerializer):
     publisher = CharField(source='work.publisher')
     description = CharField(source='work.description')
     created_year = IntegerField(source='work.created_year', min_value=1)
-    online_version_link = CharField(source='work.online_version_link')
+    online_version_link = serializers.SerializerMethodField()
 
     class Meta:
         model = WorkItem
@@ -53,6 +53,16 @@ class WorkItemByLibrarySerializer(ModelSerializer):
             'updated_at',
         )
 
+    def get_online_version_link(self, obj: WorkItem) -> str | None:
+        field = obj.work.online_version_link
+        if not field:
+            return None
+        url = field.url
+        request = self.context.get("request")
+        if request is not None and isinstance(url, str) and url.startswith("/"):
+            return request.build_absolute_uri(url)
+        return url
+
     @staticmethod
     def get_author_ids(obj: WorkItem) -> list[str]:
         return [str(aid) for aid in obj.work.authors.order_by('name').values_list('id', flat=True)]
@@ -60,4 +70,3 @@ class WorkItemByLibrarySerializer(ModelSerializer):
     @staticmethod
     def get_genre_ids(obj: WorkItem) -> list[str]:
         return [str(gid) for gid in obj.work.genres.order_by('title').values_list('id', flat=True)]
-

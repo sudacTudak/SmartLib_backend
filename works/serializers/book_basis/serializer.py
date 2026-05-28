@@ -11,7 +11,7 @@ __all__ = ['WorkSerializer']
 
 
 class WorkSerializer(AbsoluteMediaUrlMixin, serializers.ModelSerializer):
-    absolute_url_fields = ("preview_link",)
+    absolute_url_fields = ("preview_link", "online_version_link")
     author_ids = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Author.objects.all(),
@@ -80,4 +80,3 @@ class WorkSerializer(AbsoluteMediaUrlMixin, serializers.ModelSerializer):
         """Сумма `available_count` по всем `WorkItem` с тем же work; без аннотации — 0."""
         v = getattr(obj, 'books_available_total', None)
         return int(v) if v is not None else 0
-

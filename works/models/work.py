@@ -1,7 +1,7 @@
 from django.db import models
 from uuid import uuid4 as uuid
 
-from works.storage_paths import WorkPreviewUploadPath
+from works.storage_paths import WorkOnlineVersionUploadPath, WorkPreviewUploadPath
 from works.enums import WorkCategory
 
 __all__ = ['Work', 'WorkFieldsMeta']
@@ -25,7 +25,11 @@ class Work(models.Model):
     created_year = models.PositiveIntegerField()
     volume = models.PositiveIntegerField(default=1, verbose_name='Объём (страниц)')
     genres = models.ManyToManyField('works.Genre', related_name='works', blank=True)
-    online_version_link = models.TextField(blank=True, null=True)
+    online_version_link = models.FileField(
+        upload_to=WorkOnlineVersionUploadPath(),
+        blank=True,
+        null=True,
+    )
     preview_link = models.ImageField(upload_to=WorkPreviewUploadPath(), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -36,4 +40,3 @@ class Work(models.Model):
 
     def __str__(self):
         return self.title
-

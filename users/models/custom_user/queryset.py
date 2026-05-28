@@ -13,8 +13,10 @@ __all__ = ['CustomUserQuerySet', 'TypeCustomUserQuerySet']
 if TYPE_CHECKING:
     from .models import CustomUser
 
+
     class _Base(QuerySet[CustomUser]):
         def all(self) -> TypeCustomUserQuerySet: ...
+
         def filter(self, *args, **kwargs) -> TypeCustomUserQuerySet: ...
 else:
     class _Base(QuerySet):
@@ -35,12 +37,14 @@ class CustomUserQuerySet(_Base):
         return self.filter(staff_profile__library_branch=library_branch_id)
 
     def get_by_email(self, email: str) -> CustomUser | None:
+        from .models import CustomUser
+
         try:
             return cast(CustomUser, self.get(email=email))
         except (ObjectDoesNotExist,):
             return None
 
-    def get_by_id(self, user_id: str) -> CustomUser | None:
+    def get_by_id(self, user_id: str) -> "CustomUser | None":
         try:
             return self.get(pk=user_id)
         except (ObjectDoesNotExist,):

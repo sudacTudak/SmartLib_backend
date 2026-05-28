@@ -199,6 +199,19 @@ def work_demo_preview_relative_path(work_id: str) -> str:
     return f"works/{work_id}/preview/{WORK_DEMO_COVER_FILENAME}"
 
 
+# Демо PDF для онлайн-чтения: файл лежит в ``db_core/seed_demo/assets/`` (команда ``install_demo_work_online_pdfs``).
+ANNA_KARENINA_ONLINE_PDF_FILENAME = "tolstoy_anna_karenina.pdf"
+
+DEMO_ONLINE_PDF_BY_WORK_ID: dict[str, str] = {
+    BB_ANNA_KARENINA_ID: ANNA_KARENINA_ONLINE_PDF_FILENAME,
+}
+
+
+def work_demo_online_relative_path(work_id: str, filename: str) -> str:
+    """Относительный путь внутри ``MEDIA_ROOT`` до PDF онлайн-версии."""
+    return f"works/{work_id}/online/{filename}"
+
+
 @dataclass
 class WorkSpec:
     id: str
@@ -210,7 +223,6 @@ class WorkSpec:
     volume: int
     genre_ids: list[str]
     description: str
-    online_version_link: str | None = None
 
 
 @dataclass
@@ -254,6 +266,7 @@ class ClientUserSpec:
     email: str
     first_name: str
     last_name: str
+    password: str
 
 
 @dataclass
@@ -263,6 +276,7 @@ class StaffUserSpec:
     last_name: str
     library_id: str
     position_id: str
+    password: str
 
 
 STAFF_POSITIONS: list[StaffPositionSpec] = [
@@ -348,7 +362,7 @@ WORKS: list[WorkSpec] = [
         created_year=1866,
         volume=640,
         description="Гениальный роман, главные темы которого: преступление и наказание, жертвенность и любовь, свобода и гордость человека – обрамлены почти детективным сюжетом. Многократно экранизированный и не раз поставленный на сцене, он и по сей день читается на одном дыхании.",
-        genre_ids = [G_GENRE_RUSSIAN_ID],
+        genre_ids=[G_GENRE_RUSSIAN_ID],
     ),
     WorkSpec(
         id=BB_MASTER_MARGARITA_ID,
@@ -391,9 +405,8 @@ WORKS: list[WorkSpec] = [
         publisher="Эксмо",
         created_year=1877,
         volume=864,
-        description="Роман о любви, выборе и последствиях.",
+        description="«Анна Каренина» – это роман о любви, требующей жертв, и о страсти, погубившей не одну семью. Толстой бросает читателя в головокружительный водоворот чувств и заставляет задуматься о том, на что мы готовы пойти ради любимых.",
         genre_ids=[G_GENRE_ROMANCE_ID],
-        online_version_link="https://example.com/anna-karenina",
     ),
     WorkSpec(
         id=BB_IDIOT_ID,
@@ -427,7 +440,6 @@ WORKS: list[WorkSpec] = [
         volume=416,
         description="",
         genre_ids=[G_GENRE_ROMANCE_ID],
-        online_version_link="https://example.com/three-comrades",
     ),
     WorkSpec(
         id=BB_DOG_HEART_ID,
@@ -450,7 +462,6 @@ WORKS: list[WorkSpec] = [
         volume=288,
         description="Классический детектив с закрытым кругом подозреваемых.",
         genre_ids=[G_GENRE_DETECTIVE_ID],
-        online_version_link="https://example.com/orient-express",
     ),
     WorkSpec(
         id=BB_AND_THERE_NONE_ID,
@@ -473,7 +484,6 @@ WORKS: list[WorkSpec] = [
         volume=624,
         description="",
         genre_ids=[G_GENRE_THRILLER_ID],
-        online_version_link="https://example.com/da-vinci-code",
     ),
     WorkSpec(
         id=BB_GONE_GIRL_ID,
@@ -525,6 +535,7 @@ CLIENT_USER = ClientUserSpec(
     email="client@demo.local",
     first_name="Иван",
     last_name="Клиентов",
+    password="Test1234"
 )
 
 WORK_FEEDBACKS: list[WorkFeedbackSeedSpec] = [
@@ -618,6 +629,7 @@ MANAGERS: list[StaffUserSpec] = [
         last_name="Менеджеров",
         library_id=LIB_MOSCOW_ID,
         position_id=STAFF_BOOKING_MANAGER_ID,
+        password="Test1234"
     ),
     StaffUserSpec(
         email="manager.spb@demo.local",
@@ -625,6 +637,7 @@ MANAGERS: list[StaffUserSpec] = [
         last_name="Записей",
         library_id=LIB_SPB_ID,
         position_id=STAFF_SUPPLY_MANAGER_ID,
+        password="Test1234"
     ),
 ]
 
@@ -635,6 +648,7 @@ LIBRARY_ADMINS: list[StaffUserSpec] = [
         last_name="Админов",
         library_id=LIB_MOSCOW_ID,
         position_id=STAFF_BRANCH_DIRECTOR_ID,
+        password="Test1234"
     ),
     StaffUserSpec(
         email="admin.spb@demo.local",
@@ -642,5 +656,6 @@ LIBRARY_ADMINS: list[StaffUserSpec] = [
         last_name="Директорова",
         library_id=LIB_SPB_ID,
         position_id=STAFF_BRANCH_DIRECTOR_ID,
+        password="Test1234"
     ),
 ]

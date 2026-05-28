@@ -22,9 +22,10 @@ class ProfileViewSet(ViewSetBase[TypeCustomUserQuerySet]):
     def get_permissions(self):
         return [IsAuthenticated()]
 
-    @action(url_path='', url_name='profile', detail=False, methods=[HTTPMethod.GET])
+    @action(url_path='get-profile', url_name='profile', detail=False, methods=[HTTPMethod.GET])
     def profile(self, request: Request):
         user = cast(CustomUser, request.user)
+        print('user: ', user)
 
         if user.is_staff_user:
             serializer = GetStaffSerializer(user, context={'request': request})

@@ -14,6 +14,7 @@ from authors.models import Author
 from works.models import WorkItem, Work, Genre
 from feedback.models import WorkFeedback, LibraryBranchFeedback
 from db_core.seed_demo import data as seed_data
+from db_core.seed_demo.demo_online_pdf import install_demo_online_pdfs
 from inventory_movement.enums import InventoryMovementType
 from inventory_movement.models import InventoryMovement
 from library.models import LibraryBranch
@@ -110,8 +111,8 @@ def _validate_demo_config() -> None:
 
 @transaction.atomic
 def run_seed_demo(
-    stdout: OutputWrapper | Any,
-    style: Any,
+        stdout: OutputWrapper | Any,
+        style: Any,
 ) -> None:
     _validate_demo_config()
 
@@ -198,7 +199,6 @@ def run_seed_demo(
                 created_year=row.created_year,
                 volume=row.volume,
                 description=row.description,
-                online_version_link=row.online_version_link,
             )
             w.authors.set(authors_by_id[aid] for aid in row.author_ids)
             w.genres.set(genres_by_id[gid] for gid in row.genre_ids)
@@ -242,7 +242,7 @@ def run_seed_demo(
     if not CustomUser.objects.filter(email=seed_data.CLIENT_USER.email).exists():
         CustomUser.objects.create_user(
             email=seed_data.CLIENT_USER.email,
-            password=pwd,
+            password=seed_data.CLIENT_USER.password,
             first_name=seed_data.CLIENT_USER.first_name,
             last_name=seed_data.CLIENT_USER.last_name,
             role=UserRole.Client.value,
@@ -282,7 +282,7 @@ def run_seed_demo(
         pos = positions_by_id[spec.position_id]
         user = CustomUser.objects.create_staff(
             email=spec.email,
-            password=pwd,
+            password=spec.password,
             first_name=spec.first_name,
             last_name=spec.last_name,
             role=UserRole.Manager.value,
@@ -298,7 +298,7 @@ def run_seed_demo(
         pos = positions_by_id[spec.position_id]
         user = CustomUser.objects.create_staff(
             email=spec.email,
-            password=pwd,
+            password=spec.password,
             first_name=spec.first_name,
             last_name=spec.last_name,
             role=UserRole.Admin.value,
@@ -307,5 +307,8 @@ def run_seed_demo(
             profile_data={"library_branch": br, "position": pos},
         )
         user.user_permissions.set(all_perms)
+
+    pdf_updated = install_demo_online_pdfs()
+    stdout.write(style.SUCCESS(f"Демо PDF онлайн-версий: обновлено записей Work — {pdf_updated}."))
 
     stdout.write(style.SUCCESS("Демо-данные применены (отсутствующие записи созданы, существующие не трогались)."))

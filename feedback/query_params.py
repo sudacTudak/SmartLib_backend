@@ -3,20 +3,14 @@ from __future__ import annotations
 from pydantic import BaseModel, Field, UUID4
 
 __all__ = [
-    'WorkParentQueryParams',
-    'WorkByUserQueryParams',
+    'WorkFeedbackListQueryParams',
     'LibraryBranchParentQueryParams',
     'LibraryBranchByUserQueryParams',
 ]
 
 
-class WorkParentQueryParams(BaseModel):
+class WorkFeedbackListQueryParams(BaseModel):
     work_id: UUID4 | None = Field(None, alias='workId')
-
-    model_config = {'populate_by_name': True}
-
-
-class WorkByUserQueryParams(WorkParentQueryParams):
     client_id: UUID4 | None = Field(None, alias='clientId')
 
     model_config = {'populate_by_name': True}
