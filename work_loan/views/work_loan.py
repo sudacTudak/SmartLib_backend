@@ -92,7 +92,7 @@ class WorkLoanViewSet(
         response_serializer = WorkLoanReadSerializer(loan, context=self.get_serializer_context())
         return HTTPResponse.success(data=response_serializer.data, status_code=status.HTTP_201_CREATED)
 
-    @action(url_path='prolong', detail=True, methods=(HTTPMethod.POST,))
+    @action(url_path='prolong', detail=True, methods=(HTTPMethod.PATCH,))
     def prolong(self, request: Request, *args, **kwargs):
         loan = cast(WorkLoan, self.get_object())
         serializer = cast(WorkLoanProlongSerializer, self.get_serializer(data=request.data))

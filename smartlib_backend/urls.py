@@ -32,6 +32,7 @@ urlpatterns = [
     path(fr'{API_PATH_PREFIX}/suppliers/', include('suppliers.urls')),
     path(fr'{API_PATH_PREFIX}/amenities/', include('amenity.urls')),
     path(fr'{API_PATH_PREFIX}/work-loans/', include('work_loan.urls')),
+    path(fr'{API_PATH_PREFIX}/work-reservations/', include('work_reservations.urls')),
     path(fr'{API_PATH_PREFIX}/feedback/', include('feedback.urls')),
     path(fr'{API_PATH_PREFIX}/', include('reports.urls')),
 ]

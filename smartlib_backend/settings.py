@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'inventory_movement.apps.InventoryMovementConfig',
     'amenity.apps.AmenityConfig',
     'work_loan.apps.WorkLoanConfig',
+    'work_reservations.apps.WorkReservationsConfig',
     'feedback.apps.FeedbackConfig',
     'reports.apps.ReportsConfig',
 ]

@@ -6,6 +6,7 @@ from django.db.models import QuerySet, Count, Q
 from users.enums import UserRole, UserPermissions
 
 from django.core.exceptions import ObjectDoesNotExist
+from common_core.queryset import QuerySetStaffLibraryScopedMixin
 from typing import TYPE_CHECKING, TypeVar, cast
 
 __all__ = ['CustomUserQuerySet', 'TypeCustomUserQuerySet']
@@ -23,15 +24,8 @@ else:
         pass
 
 
-class CustomUserQuerySet(_Base):
-    def scoped_for_staff_same_library(self, user: "CustomUser") -> CustomUserQuerySet:
-        """Ограничение выборки библиотекой сотрудника: админ видит всё, менеджер — только свою ветку."""
-        if user.is_admin:
-            return self
-        profile = getattr(user, 'staff_profile', None)
-        if profile is None or profile.library_branch_id is None:
-            return self.none()
-        return self.filter(staff_profile__library_branch_id=profile.library_branch_id)
+class CustomUserQuerySet(_Base, QuerySetStaffLibraryScopedMixin['CustomUserQuerySet']):
+    default_library_lookup = 'staff_profile__library_branch_id'
 
     def get_library_managers(self, library_branch_id: str):
         return self.filter(staff_profile__library_branch=library_branch_id)

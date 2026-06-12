@@ -1,0 +1,7 @@
+[tool.mypy]
+plugins = [
+    "mypy_django_plugin.main",
+]
+
+[tool.mypy.plugins.django_settings]
+settings_module = "smarlib_backend.settings"
